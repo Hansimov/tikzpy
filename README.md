@@ -1,1 +1,1 @@
-This is a Pythonic wrapper of TikZ in TeX.
+This is a wrapper of TikZ in Python.
