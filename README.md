@@ -1,1 +1,13 @@
-This is a wrapper of TikZ in Python.
+## Introduction
+
+## Installation
+
+## Examples
+
+## Usage
+
+## Todo
+
+
+
+## What it is not?
