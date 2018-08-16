@@ -106,7 +106,7 @@ I emphasize several outstanding ones and will have deep researches on them later
 * JSXGraph
   * Pros:
     * Tasks:
-      * Good at geometry
+      * Good at geometry and plotting
       * Interactive
     * Solutions:
       * Light-weight
@@ -120,38 +120,62 @@ I emphasize several outstanding ones and will have deep researches on them later
     * Solutions:
       * ...
 
-* Cairo/Gizeh/Pycairo/cairocffi
-  * Pros:
-    * Tasks:
-    * Solutions:
-  * Cons:
-    * Tasks:
-    * Solutions:
-
 * Openframeworks
   * Pros:
     * Tasks:
+      * Large number of useful functions
+      * Support multiple media
     * Solutions:
+      * Fast
+      * Open source
+      * Rich API references
+      * Large number of users and active communities
   * Cons:
     * Tasks:
+      * Lack of support for LaTeX typesettings
+      * Must put all logics into a loop
+        * This is not natural for non-linear drawings 
     * Solutions:
-* paper.js/raphael.js/p5.js
-  * Pros:
-    * Tasks:
-    * Solutions:
-  * Cons:
-    * Tasks:
-    * Solutions:
+      * C++ is not convinient
+      * Need to recompile when file changes
+      * Must develop with IDE
+      * Intermediate files are large (in .vs)
+      * Tutorials and documents are not really systematic
+
 * Processing/processing.py
+  * Similar to openframeworks, just several differences:
   * Pros:
     * Tasks:
+      * Large number of libraries and extensions
     * Solutions:
+      * Large number of tutorials and documents
   * Cons:
     * Tasks:
+      * ...
     * Solutions:
+      * Java is still not convenient enough
 
+* Cairo/Gizeh/Pycairo/cairocffi
 
-**manim**
+* paper.js/raphael.js/p5.js
+
+* **manim**
+  * Pros:
+    * Tasks:
+      * Support LaTeX
+      * Designed for math animations
+    * Solutions:
+      * Open source
+      * Pythonic
+  * Cons:
+    * Tasks:
+      * Few functions
+      * Must generate videos and no real-time previews
+      * Not suitable for drawing large number of elements
+    * Solutions:
+      * Troublesome to install and configure
+      * Really few tutorials or documents, almost none
+      * None community and few users by far
 
 ### Graphics Interfaces
 * DirectX
@@ -159,24 +183,45 @@ I emphasize several outstanding ones and will have deep researches on them later
 * WebGL
 * Qt/PyQt
 
-### Data Visualizations / Plotting 
-* gnuplot/gnuplot-py
-* **matplotlib**
-  * Pros:
-    * Tasks:
-    * Solutions:
-  * Cons:
-    * Tasks:
-    * Solutions:
-* vispy
-* PyQtGraph
+### Data Visualizations / Plots
 * D3.js
   * Pros:
     * Tasks:
+      * All kinds of data visualizations and plots
+      * Interactive
     * Solutions:
+      * Open source
+      * Large number of tutorials, examples, documents and API references
+      * Large number of users and active community
+      * Flexible and extendable
   * Cons:
     * Tasks:
+      * Cannot export images in large numbers
+        * It is almost impossible to create high-quality videos without each frame exported, except using screen recorders
+      * Not designed for typesettings and motion graphics
+      * Lack of support for complicated LaTeX
     * Solutions:
+      * Not suitable for drawing large number of elements
+      * Has most drawbacks of the tools in JavaScript
+
+* matplotlib
+  * Similar to D3.js, just several differences
+  * Pros:
+    * Tasks:
+      * ...
+    * Solutions:
+      * Pythonic
+  * Cons:
+    * Tasks:
+      * Lack support for animations (actually can do, but the methods are really strange)
+    * Solutions:
+      * Buggy, sometimes even dead
+      * Not able to plot large number of elements
+      * The design is not elegant
+
+* gnuplot/gnuplot-py
+* vispy
+* PyQtGraph
 * R
 * Mathematica
 * MATLAB
