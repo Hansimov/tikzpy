@@ -1,6 +1,6 @@
 ## Comparisons of some typical drawing tools
 
-It is hard to properly classify the large number of tools for making **drawings/plots/graphs/graphics/images/illustrations/visualizations/typesettings** to independent groups. To make it simple, I use "drawing tools" in this document to refer to tools designed for all kinds of tasks emphasized above. 
+It is hard to properly classify the large number of tools for making **drawings/plots/charts/diagrams/graphs/graphics/images/illustrations/visualizations/typesettings** to independent groups. To make it simple, I use "drawing tools" in this document to refer to tools designed for all kinds of tasks emphasized above. 
 
 What standards should we choose to compare these tools?
 By the tasks which the tool is designed for?
@@ -31,7 +31,7 @@ I emphasize several outstanding ones and will have deep researches on them later
   * Cons:
     * Tasks:
       * Only supports .ps files
-        * converting .ps to bitmaps takes a long time
+        * converting .ps to bitmaps takes a long time?
         * .ps files do not support transparency/opacity
       * Few existed extended packages, although it is powerful
     * Solutions:
@@ -155,7 +155,9 @@ I emphasize several outstanding ones and will have deep researches on them later
     * Solutions:
       * Java is still not convenient enough
 
-* Cairo/Gizeh/Pycairo/cairocffi
+* Cairo/**Pycairo**/Gizeh/cairocffi
+
+* pango
 
 * paper.js/raphael.js/p5.js
 
@@ -202,7 +204,7 @@ I emphasize several outstanding ones and will have deep researches on them later
       * Lack of support for complicated LaTeX
     * Solutions:
       * Not suitable for drawing large number of elements
-      * Has most drawbacks of the tools in JavaScript
+      * Has most drawbacks of the tools based on JavaScript
 
 * matplotlib
   * Similar to D3.js, just several differences
