@@ -1,6 +1,6 @@
+# Q: How to process units?
+# A: Use 'str' type
 
-
-# How to process units?
 
 '''
 # \draw (0,0) circle [radius=70pt];
@@ -30,5 +30,23 @@ class path:
 class ElementsList:
     eid = 0
     def __init__(self, eid=0, etype='node'):
+        pass
+
+'''
+Q:  What properties should a node have?
+A:  style:  fill, draw, line width
+    anchor: north, south, west, east
+            below, above, left, right
+    shape:  circle, rectangle
+    coord:  x, y
+    text:   font size, font family,
+            path picture ...
+
+N:  This seems too complicated.
+    Is there any concise way to implement this?
+'''
+
+class node:
+    def __init__(self):
         pass
 
