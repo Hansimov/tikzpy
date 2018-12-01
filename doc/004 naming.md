@@ -3,15 +3,16 @@
 - **Unique**
     - Avoid being duplicated to any existed thing
 
-- **Self-explained**
-    - The name should indicate its functions
+- **Self explained**
+    - The name should indicate its design goals
 
 - **Simple**
     - Easy to remember
 
 ## Some candidates
 
-- tikzcx/TikZCX: TikZ C++ Extension
+- tikzcx / TikZCX: TikZ C++ Extension (\*.tzc)
+
 
 
 

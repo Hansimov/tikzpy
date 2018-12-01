@@ -1,6 +1,6 @@
 ## Tasks
 
-"Tasks" are the answer of the question "what does this tool do", or to be more accurate, "what is it designed for".
+"Tasks" are the answer of the question "**what** does this tool do", or to be more accurate, "what is it designed for".
 
 ### What is this tool designed for
 
@@ -22,26 +22,37 @@ Therefore, here I list what this tool is not designed for (at least by far):
 
 * Data Visualizations / Plots / Data-Driven Diagrams
 * Multimedia Interaction
+* Graphics Design
 * ...
 
 ## Solutions
 
 ### What is the way this tool works
 
-"Solutions" are the answer of the question "How does this tool do".
+"Solutions" are the answer of the question "**how** does this tool do".
 
 * Fast
+    * At least faster than TikZ
 * Extendable
+    * Libraries
+        * Shapes: 2d(arrows, ...), 3d(spheres, cubes, ...)
+        * Decorations: ...
+        * Frameworks: flowcharts, tree diagrams, timelines, charts, UML, ...
+    * Macros
 * Neat
     * Renderer can be separated from Editor
     * (IDE can attract more users and is convinient, but I prefer text editors for its flexibility)
     * (So the what the software really does is designing a domain-specific language and implementing a corresponding renderer)
+    * CLI > GUI: Commands dominates graphics (to decrease difficulties of development)
+* Domain specific language
+    * Object Oriented:    `c1 = circle(r=2, x=10,y=10); c1.draw();`
+    * Procedure Oriented: `draw circle(r=2,10,10);`
 
 
 ### What is not the way this tool works
 
-* WYSIWYG and Drag&Drop like visio/photoshop/inkscape:
-    * To complicated for me for now
+* WYSIWYG and Drag&Drop like visio/Illustrator/inkscape/Dia:
+    * Too complicated for me for now
     * Hard to map casual handrawn objects to texts/commands
     * Can be partly compensated by some small tools: coordinate locator, color picker, frameworks, ...
 * 

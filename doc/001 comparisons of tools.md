@@ -17,7 +17,6 @@ The pros and cons may not be really objective. These are just my personal opinio
 
 I emphasize several outstanding ones and will have deep researches on them later to assist the designs of my tool.
 
-
 ### Typesettings
 * PostScript/MetaPost:
   * Pros:
@@ -78,6 +77,8 @@ I emphasize several outstanding ones and will have deep researches on them later
     * Solutions:
       * Tutorials and documents are not as good
       * Sometimes slower than TikZ/PGF
+
+* Adobe Indesign
 
 ### Graphics
 * **Asymptote**
@@ -179,11 +180,16 @@ I emphasize several outstanding ones and will have deep researches on them later
       * Really few tutorials or documents, almost none
       * None community and few users by far
 
+* Adobe Illustrator
+* Dia
+* Inkscape
+
 ### Graphics Interfaces
 * DirectX
 * **OpenGL**
 * WebGL
 * Qt/PyQt
+* Gtk+
 
 ### Data Visualizations / Plots
 * D3.js
@@ -228,8 +234,12 @@ I emphasize several outstanding ones and will have deep researches on them later
 * Mathematica
 * MATLAB
 
+### Schematic Diagrams
+* Office Visio
+* XMind/MindManager
+* UML
+
 ### Image Processing
 * Pillow
-
-
+* Adobe Photoshop
 
