@@ -1,6 +1,31 @@
 <!-- 
 
 
+
+=================================================
+Important concepts
+=================================================
+
+elements:
+-----------------------------
+
+layers:
+-----------------------------
+
+pool:
+-----------------------------
+
+painter:
+-----------------------------
+
+active options:
+-----------------------------
+
+monitor:
+-----------------------------
+
+
+
 =================================================
 Functions
 =================================================
@@ -21,13 +46,15 @@ options(styles):
     dotted/dashed
     corner
 
-%   It might be better to define options in each type of 
+
+% It might be better to define options in each type of elements.
+% At last, combine all active options to make draw commands
 
 
-Read VisualTikZ.pdf to get more ideas.
+% Read VisualTikZ.pdf to get more ideas.
 
-Read SVG doc to get more ideas:
-    https://www.w3.org/TR/SVG2/
+% Read SVG doc to get more ideas:
+%   https://www.w3.org/TR/SVG2/
 
 
 node(text):
@@ -50,8 +77,8 @@ frameworks:
     mindmap,
     circuits, periodic table, ...
 
-Visit TeXample.net to get more ideas:
-    http://www.texample.net/tikz/examples/all/
+% Visit TeXample.net to get more ideas:
+%   http://www.texample.net/tikz/examples/all/
 
 coordinate system
 -----------------------------
@@ -102,7 +129,6 @@ xxx.setContext(cr)
 >   <obj>.draw = '<color>'
 >   <obj>.draw = '<color1>!<ratio>!<color2>'
 >   <obj>.draw = ['rgb', [<r>, <g>, <b>]]
-
 
 
 =================================================
