@@ -9,9 +9,9 @@ PDF_SURFACE = []
 CONTEXT = []
 ELEMENTS = []
 
-def initTikzpy(filename='default.pdf', img_width=1280, img_height=720):
+def initTikzpy(filename='default.pdf', width=1280, height=720):
     global PDF_SURFACE, CONTEXT
-    PDF_SURFACE = cairo.PDFSurface(filename, img_width, img_height)
+    PDF_SURFACE = cairo.PDFSurface(filename, width, height)
     CONTEXT = cairo.Context(PDF_SURFACE)
     # print(type(CONTEXT))
 

@@ -25,17 +25,18 @@ class arc:
 class node:
     # Text in PyCairo - ZetCode
     #   http://zetcode.com/gfx/pycairo/text/
-    def __init__(self, text='PYCAIRO', x=100, y=200, face="Sans Mono"):
+    def __init__(self, text='PYCAIRO', x=100, y=200, face="Arial Unicode MS", size=12):
         ELEMENTS.append(self)
         self.text = text
         self.x = x
         self.y = y
         self.face = face
+        self.size = size
 
     def paint(self, CONTEXT):
         CONTEXT.move_to(self.x, self.y)
         CONTEXT.select_font_face(self.face, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
-        CONTEXT.set_font_size(20)
+        CONTEXT.set_font_size(self.size)
         CONTEXT.show_text(self.text)
         # CONTEXT.fill()
 
