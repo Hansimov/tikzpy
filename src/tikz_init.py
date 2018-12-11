@@ -17,4 +17,3 @@ def outputImg():
         CONTEXT.save()
         ele.paint()
         CONTEXT.restore()
-
