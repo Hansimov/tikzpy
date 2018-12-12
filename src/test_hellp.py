@@ -9,9 +9,10 @@ initTikzpy('test_hello.pdf', width=600, height=500)
 # circ2 = circle(x=350, y=90, r=1)
 
 xxx = 'π * 123 + 456 β ∬ 天地玄黄，宇宙洪荒' # 
-node1 = node(x=40, y=200, font_size=20, text=xxx)
+# node1 = node(x=40, y=200, font_size=20, text=xxx)
 # node2 = node(x=10, y=225, font_size=20, text=xxx, font_face='Consolas-With-Yahei')
-node3 = node(x=40, y=250, font_size=20, text=xxx, font_face='Source Han Sans HW SC')
+node3 = node(x=40, y=250, font_size=20, text=xxx, font_face='Source Han Sans HW SC', text_rgba=[0.5,0.0,0.0,1.0])
+# circle(x=node3.c[0], y=node3.c[1], r=1)
 
 # circ11 = circle(x=node1.x, y=node1.y, r=1)
 # circ12 = circle(x=node1.x+node1.xa+node1.xb, y=node1.y+node1.ya+node1.yb, r=1)

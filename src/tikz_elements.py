@@ -58,6 +58,68 @@ class node:
         self.initArgs(kwargs)
         self.initFuncs()
 
+    # def __setattr__(self, attr, val):
+    #     # if attr != 'options' and attr != 'id':
+    #         # print('set %s to %s' % (attr, value))
+    #         # ELEMENTS[self.id] = self
+    #     super().__setattr__(attr, val)
+    #     trig_args ={
+    #     # x,y,xy, anchor -> c -> n,s,w,e
+    #         'x':       self.updateXY('x', val),
+    #         'y':       self.updateXY('y', val),
+    #         'xy':      self.updateXY('xy', val),
+    #         'anchor':  self.updateAnchor('c', val),
+    #     # rgb, hsl, name, hex, -> rgba
+    #         'stroke_color': self.updateColor(),
+    #         'fill_color':   self.updateColor(),
+    #         'text_color':   self.updateColor(),
+    #     }
+    #     if attr in trig_args:
+    #         trig_args[attr]
+    
+    @property
+    def x(self):
+        return self._x
+    @x.setter
+    def x(self, val):
+        # print(self.__dict__)
+        print('set x: {}'.format(val))
+        if '_x' in self.__dict__:
+            if self.x == val:
+                return
+        self._x = val
+        if not '_y' in self.__dict__:
+            self.xy = [val, 0]
+        else:
+            self.xy = [val, self.y]
+
+    @property
+    def y(self):
+        return self._y
+    @y.setter
+    def y(self, val):
+        if '_y' in self.__dict__:
+            if self.y == val:
+                return
+        self._y = val
+        if not '_x' in self.__dict__:
+            self.xy = [0, val]
+        else:
+            self.xy = [self.x, val]
+
+    @property
+    def xy(self):
+        return self._xy
+    @xy.setter
+    def xy(self, val):
+        if '_xy' in self.__dict__:
+            if self.xy == val:
+                return
+        self._xy = val
+        self.x = val[0]
+        self.y = val[1]
+
+
 # Initialize args
 # Set args with inputs
 # Do something which in the args list
@@ -73,9 +135,9 @@ class node:
             'font_size':    20,
             'font_face':    'Arial Unicode MS',
         # position
-            'x' : 0,
-            'y' : 0,
-            'xy': [0, 0],
+            'x' :       0,
+            'y' :       0,
+            'anchor':   'c',
         # fill
             'is_fill':      False,
             'fill_rgba':   [0.5, 0.0, 0.0, 1.0],
@@ -109,15 +171,34 @@ class node:
         self.xb, self.yb, self.ww, self.hh, self.xa, self.ya = list(map(lambda x: round(CONTEXT.text_extents(self.text)[x], 2), [0, 1, 2, 3, 4, 5]))
         CONTEXT.stroke()
         self.width, self.height = self.xa+self.xb, abs(self.ya+self.yb)
-        self.n = [self.x+self.width/2,  self.y-self.height]
-        self.s = [self.x+self.width/2,  self.y]
-        self.e = [self.x+self.width,    self.y-self.height/2]
-        self.w = [self.x,               self.y-self.height/2]
-        self.ne = self.en = [self.e[0], self.n[1]]
-        self.nw = self.wn = [self.w[0], self.n[1]]
-        self.se = self.es = [self.e[0], self.s[1]]
-        self.sw = self.ws = [self.w[0], self.s[1]]
-        self.c = [self.n[0], self.e[1]]
+
+        anchor_arg = {
+            'c':    [self.x, self.y],
+            'n':    [self.x, self.y+self.height/2],
+            's':    [self.x, self.y-self.height/2],
+            'e':    [self.x+self.width/2, self.y],
+            'w':    [self.x-self.width/2, self.y],
+            'ne':   [self.x+self.width/2, self.y+self.height/2],
+            'en':   [self.x+self.width/2, self.y+self.height/2],
+            'nw':   [self.x-self.width/2, self.y+self.height/2],
+            'wn':   [self.x-self.width/2, self.y+self.height/2],
+            'se':   [self.x+self.width/2, self.y-self.height/2],
+            'es':   [self.x+self.width/2, self.y-self.height/2],
+            'sw':   [self.x-self.width/2, self.y-self.height/2],
+            'ws':   [self.x-self.width/2, self.y-self.height/2],
+        }
+        self.c = anchor_arg[self.anchor]
+        self.calcAnchorFromCenter()
+
+    def calcAnchorFromCenter(self):
+            self.n = [self.c[0], self.c[1]-self.height/2]
+            self.s = [self.c[0], self.c[1]+self.height/2]
+            self.e = [self.c[0]+self.width/2, self.c[1]]
+            self.w = [self.c[0]-self.width/2, self.c[1]]
+            self.ne = self.en = [self.e[0], self.n[1]]
+            self.nw = self.wn = [self.w[0], self.n[1]]
+            self.se = self.es = [self.e[0], self.s[1]]
+            self.sw = self.ws = [self.w[0], self.s[1]]
 
     # def calcColor(self):
         # pass
