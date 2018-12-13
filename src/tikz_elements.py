@@ -56,6 +56,10 @@ class circle:
 
 
 # ============================================= #
+
+
+
+# ============================================= #
 class node:
     # Text in PyCairo - ZetCode
     #   http://zetcode.com/gfx/pycairo/text/
@@ -79,9 +83,8 @@ class node:
             'font_size':    20,
             'font_face':    'Arial Unicode MS',
         # position
+            'anchor':   'c',
             'c':        [0, 0],
-            # 'xy':       [0, 0],
-            # 'anchor':   'c',
         # fill
             'is_fill':      False,
             'fill_rgba':   [0.5, 0.0, 0.0, 1.0],
@@ -99,7 +102,6 @@ class node:
     def initFuncs(self):
         if self.is_append:
             ELEMENTS.append(self)
-
 
     # def __setattr__(self, attr, val):
     #     # if attr != 'options' and attr != 'id':
@@ -120,15 +122,6 @@ class node:
     #     if attr in trig_args:
     #         trig_args[attr]
 
-    def decorateCoordinate(idx):
-        @property
-        def prop(self):
-            return self.c[idx]
-        @prop.setter
-        def prop(self, val):
-            self.c[idx] = val
-        return prop
-
     def decorateAnchor(arg):
         @property
         def prop(self):
@@ -137,7 +130,6 @@ class node:
             CONTEXT.stroke()
             self.width, self.height = self.xa+self.xb, abs(self.ya+self.yb)
             anchor_dict = {
-                # 'c':    [self.x, self.y],
                 'n':    [self.c[0], self.c[1]-self.height/2],
                 's':    [self.c[0], self.c[1]+self.height/2],
                 'e':    [self.c[0]+self.width/2, self.c[1]],
@@ -150,26 +142,22 @@ class node:
             return anchor_dict[arg]
         return prop
 
-
-    #     # for key in ['x', 'y', 'height', 'anchor']:
-    #     #     if not key in self.__dict__:
-    #     #         return
-    #     @property
-    #     def prop(self):
-
-    #         return center2anchor_dict[arg]
-    #     # @prop.setter
-    #     # def prop(self, val):
-    #     #     # getter(self)[0] = val[0]
-    #     #     # getter(self)[1] = anchor_val[arg][1]
-    #     #     pass
-    #     return prop
-
-    for key, val in {'x':0, 'y':1}.items():
-        exec(f"{key} = decorateCoordinate({val})")
+    def decorateXY(arg):
+        @property
+        def prop(self):
+            xy_dict = {
+                'x':    getattr(self, self.anchor)[0],
+                'y':    getattr(self, self.anchor)[1],
+                'xy':   getattr(self, self.anchor),
+            }
+            return xy_dict[arg]
+        return prop
 
     for key in ['n','s', 'e', 'w', 'ne', 'nw', 'se', 'sw']:
         exec(f"{key} = decorateAnchor('{key}')")
+
+    for key in ['x', 'y', 'xy']:
+        exec(f"{key} = decorateXY('{key}')")
 
     def calcFont(self):
         # CONTEXT.select_font_face(self.face)
@@ -181,45 +169,8 @@ class node:
             if key in self.__dict__:
                 val
 
-    # def calcAnchor(self):
-    #     self.calcFont()
-    #     self.xb, self.yb, self.ww, self.hh, self.xa, self.ya = list(map(lambda x: round(CONTEXT.text_extents(self.text)[x], 2), [0, 1, 2, 3, 4, 5]))
-    #     CONTEXT.stroke()
-    #     self.width, self.height = self.xa+self.xb, abs(self.ya+self.yb)
-
-    #     anchor_arg = {
-    #         'c':    [self.x, self.y],
-    #         'n':    [self.x, self.y+self.height/2],
-    #         's':    [self.x, self.y-self.height/2],
-    #         'e':    [self.x+self.width/2, self.y],
-    #         'w':    [self.x-self.width/2, self.y],
-    #         'ne':   [self.x+self.width/2, self.y+self.height/2],
-    #         'en':   [self.x+self.width/2, self.y+self.height/2],
-    #         'nw':   [self.x-self.width/2, self.y+self.height/2],
-    #         'wn':   [self.x-self.width/2, self.y+self.height/2],
-    #         'se':   [self.x+self.width/2, self.y-self.height/2],
-    #         'es':   [self.x+self.width/2, self.y-self.height/2],
-    #         'sw':   [self.x-self.width/2, self.y-self.height/2],
-    #         'ws':   [self.x-self.width/2, self.y-self.height/2],
-    #     }
-    #     self.c = anchor_arg[self.anchor]
-    #     self.calcAnchorFromCenter()
-
-    # def calcAnchorFromCenter(self):
-    #         self.n = [self.c[0], self.c[1]-self.height/2]
-    #         self.s = [self.c[0], self.c[1]+self.height/2]
-    #         self.e = [self.c[0]+self.width/2, self.c[1]]
-    #         self.w = [self.c[0]-self.width/2, self.c[1]]
-    #         self.ne = self.en = [self.e[0], self.n[1]]
-    #         self.nw = self.wn = [self.w[0], self.n[1]]
-    #         self.se = self.es = [self.e[0], self.s[1]]
-    #         self.sw = self.ws = [self.w[0], self.s[1]]
-
-    # def calcColor(self):
-        # pass
-
     def place(self):
-        CONTEXT.move_to(self.x, self.y)
+        CONTEXT.move_to(self.sw[0], self.sw[1])
 
     def write(self):
         if self.is_write:
@@ -257,4 +208,5 @@ class node:
         #   otherwise new elements will start from the end point of the previous node.
         # See:
         #   https://pycairo.readthedocs.io/en/latest/reference/context.html#cairo.Context.stroke
+
 
