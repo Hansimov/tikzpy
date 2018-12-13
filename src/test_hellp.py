@@ -11,8 +11,16 @@ initTikzpy('test_hello.pdf', width=600, height=500)
 xxx = 'π * 123 + 456 β ∬ 天地玄黄，宇宙洪荒' # 
 # node1 = node(x=40, y=200, font_size=20, text=xxx)
 # node2 = node(x=10, y=225, font_size=20, text=xxx, font_face='Consolas-With-Yahei')
-node3 = node(x=40, y=250, font_size=20, text=xxx, font_face='Source Han Sans HW SC', text_rgba=[0.5,0.0,0.0,1.0])
-# circle(x=node3.c[0], y=node3.c[1], r=1)
+node3 = node(c=[40,250], font_size=20, text=xxx, font_face='Source Han Sans HW SC', text_rgba=[0.5,0.0,0.0,1.0])
+print(node3.c)
+# node3.x = 3
+# print(node3.c, node3.x, node3.y)
+# node3.c = [30, 300]
+# print(node3.c, node3.x, node3.y)
+# node3.xy = [100, 250]
+# print(node3.n)
+
+circle(x=node3.ne[0], y=node3.ne[1], r=1)
 
 # circ11 = circle(x=node1.x, y=node1.y, r=1)
 # circ12 = circle(x=node1.x+node1.xa+node1.xb, y=node1.y+node1.ya+node1.yb, r=1)

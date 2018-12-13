@@ -8,6 +8,8 @@ def importTikzInit():
     import tikz_init
     ELEMENTS, CONTEXT = tikz_init.ELEMENTS, tikz_init.CONTEXT
 
+
+# ============================================= #
 class arc:
     def __init__(self, append=True, x=100, y=100, r=50, beg=0, end=2.01*pi):
         importTikzInit()
@@ -32,6 +34,8 @@ class arc:
         CONTEXT.arc(self.x, self.y, self.r, self.beg, self.end)
         CONTEXT.stroke()
 
+
+# ============================================= #
 class circle:
     def __init__(self, append=True, x=100, y=100, r=50):
         importTikzInit()
@@ -50,6 +54,8 @@ class circle:
         CONTEXT.set_source_rgba(0.0, 0.0, 0.5, 0.5)
         CONTEXT.fill()
 
+
+# ============================================= #
 class node:
     # Text in PyCairo - ZetCode
     #   http://zetcode.com/gfx/pycairo/text/
@@ -57,6 +63,43 @@ class node:
         importTikzInit()
         self.initArgs(kwargs)
         self.initFuncs()
+
+# Initialize args
+# Set args with inputs
+# Do something which in the args list
+
+    def initArgs(self, kwargs):
+        default_args = {
+        # others
+            'is_append':    True,
+        # text
+            'is_write':      True,
+            'text':         'TikZpy',
+            'text_rgba':    [0.0, 0.0, 0.5, 1.0],
+            'font_size':    20,
+            'font_face':    'Arial Unicode MS',
+        # position
+            'c':        [0, 0],
+            # 'xy':       [0, 0],
+            # 'anchor':   'c',
+        # fill
+            'is_fill':      False,
+            'fill_rgba':   [0.5, 0.0, 0.0, 1.0],
+        # stroke
+            'is_stroke':    False,
+            'stroke_rgba': [0.0, 0.5, 0.0, 1.0],
+        }
+
+        for key, val in default_args.items():
+            setattr(self, key, val)
+
+        for key, val in kwargs.items():
+            setattr(self, key, val)
+
+    def initFuncs(self):
+        if self.is_append:
+            ELEMENTS.append(self)
+
 
     # def __setattr__(self, attr, val):
     #     # if attr != 'options' and attr != 'id':
@@ -76,129 +119,101 @@ class node:
     #     }
     #     if attr in trig_args:
     #         trig_args[attr]
-    
-    @property
-    def x(self):
-        return self._x
-    @x.setter
-    def x(self, val):
-        # print(self.__dict__)
-        print('set x: {}'.format(val))
-        if '_x' in self.__dict__:
-            if self.x == val:
-                return
-        self._x = val
-        if not '_y' in self.__dict__:
-            self.xy = [val, 0]
-        else:
-            self.xy = [val, self.y]
 
-    @property
-    def y(self):
-        return self._y
-    @y.setter
-    def y(self, val):
-        if '_y' in self.__dict__:
-            if self.y == val:
-                return
-        self._y = val
-        if not '_x' in self.__dict__:
-            self.xy = [0, val]
-        else:
-            self.xy = [self.x, val]
+    def decorateCoordinate(idx):
+        @property
+        def prop(self):
+            return self.c[idx]
+        @prop.setter
+        def prop(self, val):
+            self.c[idx] = val
+        return prop
 
-    @property
-    def xy(self):
-        return self._xy
-    @xy.setter
-    def xy(self, val):
-        if '_xy' in self.__dict__:
-            if self.xy == val:
-                return
-        self._xy = val
-        self.x = val[0]
-        self.y = val[1]
+    def decorateAnchor(arg):
+        @property
+        def prop(self):
+            self.calcFont()
+            self.xb, self.yb, self.ww, self.hh, self.xa, self.ya = list(map(lambda x: round(CONTEXT.text_extents(self.text)[x], 2), [0, 1, 2, 3, 4, 5]))
+            CONTEXT.stroke()
+            self.width, self.height = self.xa+self.xb, abs(self.ya+self.yb)
+            anchor_dict = {
+                # 'c':    [self.x, self.y],
+                'n':    [self.c[0], self.c[1]-self.height/2],
+                's':    [self.c[0], self.c[1]+self.height/2],
+                'e':    [self.c[0]+self.width/2, self.c[1]],
+                'w':    [self.c[0]-self.width/2, self.c[1]],
+                'ne':   [self.c[0]+self.width/2, self.c[1]-self.height/2],
+                'nw':   [self.c[0]-self.width/2, self.c[1]-self.height/2],
+                'se':   [self.c[0]+self.width/2, self.c[1]+self.height/2],
+                'sw':   [self.c[0]-self.width/2, self.c[1]+self.height/2],
+            }
+            return anchor_dict[arg]
+        return prop
 
 
-# Initialize args
-# Set args with inputs
-# Do something which in the args list
+    #     # for key in ['x', 'y', 'height', 'anchor']:
+    #     #     if not key in self.__dict__:
+    #     #         return
+    #     @property
+    #     def prop(self):
 
-    def initArgs(self, kwargs):
-        default_args = {
-        # others
-            'is_append':    True,
-        # text
-            'is_write':      True,
-            'text':     'TikZpy',
-            'text_rgba':    [0.0, 0.0, 0.5, 1.0],
-            'font_size':    20,
-            'font_face':    'Arial Unicode MS',
-        # position
-            'x' :       0,
-            'y' :       0,
-            'anchor':   'c',
-        # fill
-            'is_fill':      False,
-            'fill_rgba':   [0.5, 0.0, 0.0, 1.0],
-        # stroke
-            'is_stroke':    False,
-            'stroke_rgba': [0.0, 0.5, 0.0, 1.0],
-        }
+    #         return center2anchor_dict[arg]
+    #     # @prop.setter
+    #     # def prop(self, val):
+    #     #     # getter(self)[0] = val[0]
+    #     #     # getter(self)[1] = anchor_val[arg][1]
+    #     #     pass
+    #     return prop
 
-        for key, val in default_args.items():
-            setattr(self, key, val)
+    for key, val in {'x':0, 'y':1}.items():
+        exec(f"{key} = decorateCoordinate({val})")
 
-        for key, val in kwargs.items():
-            setattr(self, key, val)
-
-    def initFuncs(self):
-        if self.is_append:
-            ELEMENTS.append(self)
+    for key in ['n','s', 'e', 'w', 'ne', 'nw', 'se', 'sw']:
+        exec(f"{key} = decorateAnchor('{key}')")
 
     def calcFont(self):
         # CONTEXT.select_font_face(self.face)
         font_args = {
-            'font_size': 20,
+            'font_size': CONTEXT.set_font_size(self.font_size),
             'font_face': CONTEXT.select_font_face(self.font_face, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
         }
         for key, val in font_args.items():
             if key in self.__dict__:
                 val
 
-    def calcAnchor(self):
-        self.calcFont()
-        self.xb, self.yb, self.ww, self.hh, self.xa, self.ya = list(map(lambda x: round(CONTEXT.text_extents(self.text)[x], 2), [0, 1, 2, 3, 4, 5]))
-        CONTEXT.stroke()
-        self.width, self.height = self.xa+self.xb, abs(self.ya+self.yb)
+    # def calcAnchor(self):
+    #     self.calcFont()
+    #     self.xb, self.yb, self.ww, self.hh, self.xa, self.ya = list(map(lambda x: round(CONTEXT.text_extents(self.text)[x], 2), [0, 1, 2, 3, 4, 5]))
+    #     CONTEXT.stroke()
+    #     self.width, self.height = self.xa+self.xb, abs(self.ya+self.yb)
 
-        anchor_arg = {
-            'c':    [self.x, self.y],
-            'n':    [self.x, self.y+self.height/2],
-            's':    [self.x, self.y-self.height/2],
-            'e':    [self.x+self.width/2, self.y],
-            'w':    [self.x-self.width/2, self.y],
-            'ne':   [self.x+self.width/2, self.y+self.height/2],
-            'en':   [self.x+self.width/2, self.y+self.height/2],
-            'nw':   [self.x-self.width/2, self.y+self.height/2],
-            'wn':   [self.x-self.width/2, self.y+self.height/2],
-            'se':   [self.x+self.width/2, self.y-self.height/2],
-            'es':   [self.x+self.width/2, self.y-self.height/2],
-            'sw':   [self.x-self.width/2, self.y-self.height/2],
-            'ws':   [self.x-self.width/2, self.y-self.height/2],
-        }
-        self.c = anchor_arg[self.anchor]
-        self.calcAnchorFromCenter()
+    #     anchor_arg = {
+    #         'c':    [self.x, self.y],
+    #         'n':    [self.x, self.y+self.height/2],
+    #         's':    [self.x, self.y-self.height/2],
+    #         'e':    [self.x+self.width/2, self.y],
+    #         'w':    [self.x-self.width/2, self.y],
+    #         'ne':   [self.x+self.width/2, self.y+self.height/2],
+    #         'en':   [self.x+self.width/2, self.y+self.height/2],
+    #         'nw':   [self.x-self.width/2, self.y+self.height/2],
+    #         'wn':   [self.x-self.width/2, self.y+self.height/2],
+    #         'se':   [self.x+self.width/2, self.y-self.height/2],
+    #         'es':   [self.x+self.width/2, self.y-self.height/2],
+    #         'sw':   [self.x-self.width/2, self.y-self.height/2],
+    #         'ws':   [self.x-self.width/2, self.y-self.height/2],
+    #     }
+    #     self.c = anchor_arg[self.anchor]
+    #     self.calcAnchorFromCenter()
 
-    def calcAnchorFromCenter(self):
-            self.n = [self.c[0], self.c[1]-self.height/2]
-            self.s = [self.c[0], self.c[1]+self.height/2]
-            self.e = [self.c[0]+self.width/2, self.c[1]]
-            self.w = [self.c[0]-self.width/2, self.c[1]]
-            self.ne = self.en = [self.e[0], self.n[1]]
-            self.nw = self.wn = [self.w[0], self.n[1]]
-            self.se = self.es = [self.e[0], self.s[1]]
-            self.sw = self.ws = [self.w[0], self.s[1]]
+    # def calcAnchorFromCenter(self):
+    #         self.n = [self.c[0], self.c[1]-self.height/2]
+    #         self.s = [self.c[0], self.c[1]+self.height/2]
+    #         self.e = [self.c[0]+self.width/2, self.c[1]]
+    #         self.w = [self.c[0]-self.width/2, self.c[1]]
+    #         self.ne = self.en = [self.e[0], self.n[1]]
+    #         self.nw = self.wn = [self.w[0], self.n[1]]
+    #         self.se = self.es = [self.e[0], self.s[1]]
+    #         self.sw = self.ws = [self.w[0], self.s[1]]
 
     # def calcColor(self):
         # pass
