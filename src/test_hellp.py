@@ -14,14 +14,16 @@ xxx = 'π * 123 + 456 β ∬ 天地玄黄，宇宙洪荒' #
 node3 = node(c=[260,250], font_size=20, text=xxx, font_face='Source Han Sans HW SC', text_rgba=[0.5,0.0,0.0,1.0])
 print(node3.c, node3.x, node3.y)
 # print(node3.c)
-# node3.x = 3
-# node3.c = [30, 300]
-# print(node3.c, node3.x, node3.y)
+node3.x = 300
+print(node3.c, node3.x, node3.y)
 # node3.xy = [100, 250]
+node3.w = [260, 250]
+print(node3.c, node3.x, node3.y)
+
 # print(node3.n)
 
 circle(x=node3.c[0], y=node3.c[1], r=1)
-circle(x=node3.x, y=node3.y, r=1)
+circle(x=node3.x, y=node3.y, r=6)
 circle(x=node3.ne[0], y=node3.ne[1], r=1)
 
 # circ11 = circle(x=node1.x, y=node1.y, r=1)

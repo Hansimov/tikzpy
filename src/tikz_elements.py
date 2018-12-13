@@ -122,39 +122,124 @@ class node:
     #     if attr in trig_args:
     #         trig_args[attr]
 
-    def decorateAnchor(arg):
+    def decorateWH(arg):
         @property
         def prop(self):
             self.calcFont()
             self.xb, self.yb, self.ww, self.hh, self.xa, self.ya = list(map(lambda x: round(CONTEXT.text_extents(self.text)[x], 2), [0, 1, 2, 3, 4, 5]))
             CONTEXT.stroke()
-            self.width, self.height = self.xa+self.xb, abs(self.ya+self.yb)
-            anchor_dict = {
-                'n':    [self.c[0], self.c[1]-self.height/2],
-                's':    [self.c[0], self.c[1]+self.height/2],
-                'e':    [self.c[0]+self.width/2, self.c[1]],
-                'w':    [self.c[0]-self.width/2, self.c[1]],
-                'ne':   [self.c[0]+self.width/2, self.c[1]-self.height/2],
-                'nw':   [self.c[0]-self.width/2, self.c[1]-self.height/2],
-                'se':   [self.c[0]+self.width/2, self.c[1]+self.height/2],
-                'sw':   [self.c[0]-self.width/2, self.c[1]+self.height/2],
+            wh_arg = {
+                'width':    self.xa+self.xb,
+                'height':   abs(self.ya+self.yb),
             }
-            return anchor_dict[arg]
+            return wh_arg[arg]
         return prop
 
-    def decorateXY(arg):
+    for key in ['width', 'height']:
+        exec(f"{key} = decorateWH('{key}')")
+
+    #   *    depends on     *
+    # ---------- |----------------
+    #   c        |    anchor, xy, nsew
+    #   anchor   |     /
+    #   xy       |    anchor, c, nsew
+    #   nsew     |    anchor, c, xy
+    # -----------|----------------
+
+    # -----------|----------------
+    #   change   |   influenced   
+    # -----------|----------------
+    #   c        |    xy, nsew
+    #   anchor   |    c (-> nsew) (fix xy)
+    #   xy       |    c (-> nsew)
+    #   nsew     |    c (-> xy)
+    # -----------|----------------
+
+    # Note: 
+    # 'anchor' has two meanings here:
+    #   1. (1-char str) value of 'anchor' attribute/property
+    #   2. (2-int list) collective name of 'n','s','e','w', ... attribute/property
+
+    def decorateNSEW(arg):
+        # arg: 'n', 's, 'e', 'w', '(n|s)(e|w)''
+        # get nsew(=arg) from c and arg
         @property
         def prop(self):
+            anchor_dict = {
+                'c':    [self.c[0],                 self.c[1]],
+                'n':    [self.c[0],                 self.c[1]-self.height/2],
+                's':    [self.c[0],                 self.c[1]+self.height/2],
+                'e':    [self.c[0]+self.width/2,    self.c[1]],
+                'w':    [self.c[0]-self.width/2,    self.c[1]],
+                'ne':   [self.c[0]+self.width/2,    self.c[1]-self.height/2],
+                'nw':   [self.c[0]-self.width/2,    self.c[1]-self.height/2],
+                'se':   [self.c[0]+self.width/2,    self.c[1]+self.height/2],
+                'sw':   [self.c[0]-self.width/2,    self.c[1]+self.height/2],
+            }
+            return anchor_dict[arg]
+        @prop.setter
+        def prop(self, val):
+            # change nsew and set c (-> xy)
+            # val: 2-int list, (nsew)
+            # same to xy setter
+            val_dict = {
+                'c':    [val[0],                val[1]],
+                'n':    [val[0],                val[1]+self.height/2],
+                's':    [val[0],                val[1]-self.height/2],
+                'e':    [val[0]-self.width/2,   val[1]],
+                'w':    [val[0]+self.width/2,   val[1]],
+                'ne':   [val[0]-self.width/2,   val[1]+self.height/2],
+                'nw':   [val[0]+self.width/2,   val[1]+self.height/2],
+                'se':   [val[0]-self.width/2,   val[1]-self.height/2],
+                'sw':   [val[0]+self.width/2,   val[1]-self.height/2],
+            }
+            self.c = val_dict[arg]
+        return prop
+
+    for key in ['n','s', 'e', 'w', 'ne', 'nw', 'se', 'sw']:
+        exec(f"{key} = decorateNSEW('{key}')")
+
+    def decorateXY(arg):
+        # arg: 'x', 'y', 'xy'
+        # get xy from nsew (which is got from c and anchor tag)
+        @property
+        def prop(self):
+            # c -> x, y, xy
             xy_dict = {
                 'x':    getattr(self, self.anchor)[0],
                 'y':    getattr(self, self.anchor)[1],
                 'xy':   getattr(self, self.anchor),
             }
             return xy_dict[arg]
+        @prop.setter
+        def prop(self, val):
+            # x, y, xy -> c
+            # val: int or 2-ele list, (x, y, xy)
+            # change x,y,xy (fix anchor) and set c
+            val_dict = {
+                'x':    [val, False | self.y],
+                'y':    [False | self.x, val],
+                'xy':   val,
+            }
+            val = val_dict[arg]
+            anchor_dict = {
+                'c':    [val[0],                val[1]],
+                'n':    [val[0],                val[1]+self.height/2],
+                's':    [val[0],                val[1]-self.height/2],
+                'e':    [val[0]-self.width/2,   val[1]],
+                'w':    [val[0]+self.width/2,   val[1]],
+                'ne':   [val[0]-self.width/2,   val[1]+self.height/2],
+                'nw':   [val[0]+self.width/2,   val[1]+self.height/2],
+                'se':   [val[0]-self.width/2,   val[1]-self.height/2],
+                'sw':   [val[0]+self.width/2,   val[1]-self.height/2],
+            }
+            xy_dict = {
+                'x':    [anchor_dict[self.anchor][0], self.y | False],
+                'y':    [self.x | False, anchor_dict[self.anchor][1]],
+                'xy':   anchor_dict[self.anchor],
+            }
+            self.c = xy_dict[arg]
         return prop
-
-    for key in ['n','s', 'e', 'w', 'ne', 'nw', 'se', 'sw']:
-        exec(f"{key} = decorateAnchor('{key}')")
 
     for key in ['x', 'y', 'xy']:
         exec(f"{key} = decorateXY('{key}')")
