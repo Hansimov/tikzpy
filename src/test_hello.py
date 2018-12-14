@@ -11,42 +11,12 @@ initTikzpy('test_hello.pdf', width=600, height=1500)
 xxx = 'π * 123 + 456 β ∬ 天地玄黄，宇宙洪荒' # 
 # node1 = node(x=00, y=200, font_size=20, text=xxx, anchor='l')
 # node2 = node(x=10, y=225, font_size=20, text=xxx, font_face='Consolas-With-Yahei')
-node3 = node(anchor='c', x=240, y=250, font_size=20, text=xxx, font_face='Source Han Sans HW SC', text_rgba=[0.5,0.0,0.0,1.0])
-# print(node3.anchor)
-# print(node3.c)
-# node3.anchor = 'e'
-# print(node3.c, node3.x, node3.y)
-node3.l = [10, 200]
-node3.tl = [10, 200]
-# print(node3.c)
-# node3.x = 100
-# print(node3.c)
-# print(node3.anchor)
-# print(node3.c, node3.x, node3.y)
-# node3.x = 300
-# print(node3.c, node3.x, node3.y)
-# node3.xy = [100, 250]
-# node3.w = [60, 270]
-# node3.r = [560, 270]
-# print(node3.c, node3.x, node3.y)
+node3 = node(anchor='c', x=20, y=250, font_size=20, text=xxx, font_face='Source Han Sans HW SC', text_rgba=[0.5,0.0,0.0,1.0])
+node3.anchor = 'l'
 circle(x=node3.e[0], y=node3.e[1], r=1)
-# node3.anchor = 'bl'
-# print(node3.c, node3.x, node3.y)
-# node3.anchor = 'sw'
-# print(node3.c, node3.x, node3.y, node3.width, node3.height)
-# circle(x=node3.r[0], y=node3.r[1], r=1)
-# circle(x=node3.l[0], y=node3.l[1], r=1)
-# node3.text = 'π * 123 + 456 β ∬ 日月盈昃'
-# circle(x=node3.w[0], y=node3.w[1], r=1)
-# print(node3.c, node3.x, node3.y)
-# circle(x=node3.r[0], y=node3.r[1], r=1)
-# circle(x=node3.l[0], y=node3.l[1], r=1)
-# print(node3.c, node3.x, node3.y, node3.width, node3.height)
 
-# print(node3.n)
-
-# circle(x=node3.x, y=node3.y, r=6)
-# circle(x=node3.ne[0], y=node3.ne[1], r=1)
+node3.text = 'π * 123 + 456 β ∬ 日月盈昃'
+circle(x=node3.e[0], y=node3.e[1], r=1)
 
 # node_list = []
 # for i in range(0, 1000):
@@ -56,19 +26,5 @@ circle(x=node3.e[0], y=node3.e[1], r=1)
 #     node_list.append(node(font_size=10, text=yyy, font_face='Source Han Sans HW SC', x=cox, y=coy, anchor='c', text_rgba=[0.5,0.0,0.0,1.0]))
 #     # node_list[i].anchor = 'n'
 #     node_list.append(circle(x=cox, y=coy, r=10))
-
-# circ11 = circle(x=node1.x, y=node1.y, r=1)
-# circ12 = circle(x=node1.x+node1.xa+node1.xb, y=node1.y+node1.ya+node1.yb, r=1)
-# # circ13 = circle(x=node1.x+node1.xa+node1.xb, y=node1.y+node1.ya-node1.h, r=1)
-# circ21 = circle(x=node2.x, y=node2.y, r=1)
-# circ22 = circle(x=node2.x+node2.xa+node2.xb, y=node2.y+node2.ya+node2.yb, r=1)
-# circ31 = circle(x=node3.x, y=node3.y, r=1)
-# circ32 = circle(x=node3.x+node3.xa+node3.xb, y=node3.y+node3.ya+node3.yb, r=1)
-# circ3n = circle(x=node3.n[0], y=node3.n[1], r=2)
-# circ3s = circle(x=node3.s[0], y=node3.s[1], r=2)
-# circ3e = circle(x=node3.e[0], y=node3.e[1], r=2)
-# circ3w = circle(x=node3.w[0], y=node3.w[1], r=2)
-# circ3se = circle(x=node3.se[0], y=node3.se[1], r=2)
-# circ3c = circle(x=node3.c[0], y=node3.c[1], r=3)
 
 outputImg()
