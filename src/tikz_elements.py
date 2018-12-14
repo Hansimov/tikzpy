@@ -8,7 +8,6 @@ def importTikzInit():
     import tikz_init
     ELEMENTS, CONTEXT = tikz_init.ELEMENTS, tikz_init.CONTEXT
 
-
 # ============================================= #
 class arc:
     def __init__(self, append=True, x=100, y=100, r=50, beg=0, end=2.01*pi):
@@ -58,7 +57,6 @@ class circle:
 # ============================================= #
 
 
-
 # ============================================= #
 class node:
     # Text in PyCairo - ZetCode
@@ -77,19 +75,21 @@ class node:
         # others
             'is_append':    True,
         # text
-            'is_write':      True,
-            'text':         'TikZpy',
+            'is_write':     True,
             'text_rgba':    [0.0, 0.0, 0.5, 1.0],
-            'font_size':    20,
-            'font_face':    'Arial Unicode MS',
+            '_text':        'TikzPy',
+            '_font_size':   20,
+            '_font_face':   'Arial Unicode MS',
+            # 'width':        0,
+            # 'height':       0,
         # position
-            '_anchor':   'c',
-            'c':        [0, 0],
+            '_anchor':      'c',
+            'c':            [0, 0],
         # fill
-            'is_fill':      False,
+            'is_fill':     False,
             'fill_rgba':   [0.5, 0.0, 0.0, 1.0],
         # stroke
-            'is_stroke':    False,
+            'is_stroke':   False,
             'stroke_rgba': [0.0, 0.5, 0.0, 1.0],
         }
 
@@ -122,21 +122,80 @@ class node:
     #     if attr in trig_args:
     #         trig_args[attr]
 
-    def decorateWH(arg):
+
+    # -------------|----------------
+    #   *    depends on     *
+    # -------------|----------------
+    #   wh         |    xb,yb,xa,ya
+    # xb,yb,xa,ya  |    text, font_face, font_size
+    # -------------|----------------
+
+    # -------------|----------------
+    #   change     |   influenced   
+    # -------------|----------------
+    #   text       |    xb,yb,xa,ya
+    #   font_face  |    xb,yb,xa,ya
+    #   font_size  |    xb,yb,xa,ya
+    # -------------|----------------
+
+    def setPaintFont(self):
+        # CONTEXT.select_font_face(self.face)
+        font_args = {
+            'font_size': CONTEXT.set_font_size(self.font_size),
+            'font_face': CONTEXT.select_font_face(self.font_face, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+        }
+        for key, val in font_args.items():
+            if key in self.__dict__:
+                val
+
+    def decorateText(arg):
+        # arg: 'text', 'font_size', 'font_face'
         @property
         def prop(self):
-            self.calcFont()
-            self.xb, self.yb, self.ww, self.hh, self.xa, self.ya = list(map(lambda x: round(CONTEXT.text_extents(self.text)[x], 2), [0, 1, 2, 3, 4, 5]))
-            CONTEXT.stroke()
-            wh_arg = {
-                'width':    self.xa+self.xb,
-                'height':   abs(self.ya+self.yb),
+            # get infomation of text
+            arg_dict = {
+                'font_size': self._font_size,
+                'font_face': self._font_face,
+                'text':      self._text,
             }
-            return wh_arg[arg]
+            return arg_dict[arg]
+        @prop.setter
+        def prop(self, val):
+            exec(f"self._{arg} = val")
+            val_dict = {
+                'font_size': [val,             self._font_face, self._text],
+                'font_face': [self._font_size, val,             self._text],
+                'text':      [self._font_size, self._font_face, val],
+            }
+            arg_list = val_dict[arg]
+
+            CONTEXT.set_font_size(arg_list[0])
+            CONTEXT.select_font_face(arg_list[1], cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+            self.xb, self.yb, self.ww, self.hh, self.xa, self.ya = list(map(lambda x: round(CONTEXT.text_extents(arg_list[2])[x], 2), [0, 1, 2, 3, 4, 5]))
+            CONTEXT.stroke()
+
+            self.width  = self.xa+self.xb
+            self.height = abs(self.ya+self.yb)
         return prop
 
-    for key in ['width', 'height']:
-        exec(f"{key} = decorateWH('{key}')")
+    for key in ['text', 'font_size', 'font_face']:
+        exec(f"{key} = decorateText('{key}')")
+
+    # def decorateWH(arg):
+    #     @property
+    #     def prop(self):
+    #         self.calcFont()
+    #         self.xb, self.yb, self.ww, self.hh, self.xa, self.ya = list(map(lambda x: round(CONTEXT.text_extents(self.text)[x], 2), [0, 1, 2, 3, 4, 5]))
+    #         CONTEXT.stroke()
+    #         wh_arg = {
+    #             'width':    self.xa+self.xb,
+    #             'height':   abs(self.ya+self.yb),
+    #         }
+    #         return wh_arg[arg]
+    #     return prop
+
+    # for key in ['width', 'height']:
+    #     exec(f"{key} = decorateWH('{key}')")
 
     # ---------- |----------------
     #   *    depends on     *
@@ -180,8 +239,8 @@ class node:
             x = getattr(self, anchor_old)[0]
             y = getattr(self, anchor_old)[1]
 
-            nsew_list = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']
-            tbrl_list = ['t', 'b', 'r', 'l', 'tr', 'tl', 'br', 'bl']
+            nsew_list = ['c', 'n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']
+            tbrl_list = ['c', 't', 'b', 'r', 'l', 'tr', 'tl', 'br', 'bl']
 
             if not val in nsew_list:
                 val = nsew_list[tbrl_list.index(val)]
@@ -199,6 +258,7 @@ class node:
             }
             self.c = anchor_dict[val]
         return prop
+
     anchor = decorateAnchor()
 
     def decorateNSEW(arg):
@@ -245,7 +305,6 @@ class node:
         exec(f"{nsew_key} = decorateNSEW('{nsew_key}')")
         exec(f"{tbrl_key} = decorateNSEW('{nsew_key}')")
 
-
     def decorateXY(arg):
         # arg: 'x', 'y', 'xy'
         @property
@@ -289,15 +348,6 @@ class node:
     for key in ['x', 'y', 'xy']:
         exec(f"{key} = decorateXY('{key}')")
 
-    def calcFont(self):
-        # CONTEXT.select_font_face(self.face)
-        font_args = {
-            'font_size': CONTEXT.set_font_size(self.font_size),
-            'font_face': CONTEXT.select_font_face(self.font_face, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
-        }
-        for key, val in font_args.items():
-            if key in self.__dict__:
-                val
 
     def place(self):
         CONTEXT.move_to(self.sw[0], self.sw[1])
@@ -305,7 +355,7 @@ class node:
     def write(self):
         if self.is_write:
             self.place()
-            self.calcFont()
+            self.setPaintFont()
             CONTEXT.set_source_rgba(*self.text_rgba)
             CONTEXT.show_text(self.text)
 
@@ -329,7 +379,7 @@ class node:
             CONTEXT.fill()
 
     def paint(self):
-        importTikzInit()
+        # importTikzInit()
         self.write()
         self.stroke()
         self.fill()
