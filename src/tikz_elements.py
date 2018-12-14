@@ -78,12 +78,14 @@ class node:
             '_text':        '',
             '_font_size':   20,
             '_font_face':   'Arial Unicode MS',
-            '_wh':          [0, 0],
+            'wh':          [0, 0],
             'text_rgba':    [0.0, 0.0, 0.5, 1.0],
         # position
             '_anchor':      'c',
             '_xy':          [0, 0],
             'c':            [0, 0],
+            'ssep':         [10,10,10,10], # stroke sep: nsew/tbrl
+            'asep':         [25,25,25,25], # anchor sep: nsew/tbrl
         # fill
             'is_fill':     False,
             'fill_rgba':   [0.5, 0.0, 0.0, 1.0],
@@ -101,26 +103,6 @@ class node:
     def initFuncs(self):
         if self.is_append:
             ELEMENTS.append(self)
-
-    # def __setattr__(self, attr, val):
-    #     # if attr != 'options' and attr != 'id':
-    #         # print('set %s to %s' % (attr, value))
-    #         # ELEMENTS[self.id] = self
-    #     super().__setattr__(attr, val)
-    #     trig_args ={
-    #     # x,y,xy, anchor -> c -> n,s,w,e
-    #         'x':       self.updateXY('x', val),
-    #         'y':       self.updateXY('y', val),
-    #         'xy':      self.updateXY('xy', val),
-    #         'anchor':  self.updateAnchor('c', val),
-    #     # rgb, hsl, name, hex, -> rgba
-    #         'stroke_color': self.updateColor(),
-    #         'fill_color':   self.updateColor(),
-    #         'text_color':   self.updateColor(),
-    #     }
-    #     if attr in trig_args:
-    #         trig_args[attr]
-
 
     # -------------|----------------
     #   *    depends on     *
@@ -185,23 +167,22 @@ class node:
     for key in ['text', 'font_size', 'font_face']:
         exec(f"{key} = decorateText('{key}')")
 
-
     def decorateWH(arg):
         # arg: 'width', 'height'
         @property
         def prop(self):
             wh_arg = {
-                'width':        self._wh[0],
-                'height':       self._wh[1],
+                'width':        self.wh[0],
+                'height':       self.wh[1],
             }
             return wh_arg[arg]
         @prop.setter
         def prop(self, val):
             val_dict = {
-                'width':    [val,           self._wh[1]],
-                'height':   [self._wh[0],   val],
+                'width':    [val,           self.wh[1]],
+                'height':   [self.wh[0],   val],
             }
-            self._wh = val_dict[arg]
+            self.wh = val_dict[arg]
             # This line is to update c
             self.anchor = self.anchor
         return prop
@@ -273,12 +254,25 @@ class node:
             if not anchor in nsew_list:
                 anchor = nsew_list[tbrl_list.index(anchor)]
 
-            self.c = anchor_dict[anchor]
+            # nsew/tbrl
+            asepn, aseps, asepe, asepw = list(map(lambda i: self.asep[i], [0, 1, 2, 3]))
+            asep_dict = {
+                'c':    [0, 0],
+                'n':    [0, -asepn],
+                's':    [0, +aseps],
+                'e':    [+asepe, 0],
+                'w':    [-asepw, 0],
+                'ne':   [+asepe, -asepn],
+                'nw':   [-asepw, -asepn],
+                'se':   [+asepe, +aseps],
+                'sw':   [-asepw, +aseps],
+            }
+            c_val = list(map(lambda a,b: a-b, anchor_dict[anchor], asep_dict[anchor]))
+            self.c = c_val
         return prop
 
     for key in ['x', 'y', 'xy']:
         exec(f"{key} = decorateXY('{key}')")
-
 
     def decorateAnchor():
         @property
@@ -317,7 +311,21 @@ class node:
                 'se':   [x-self.width/2,   y-self.height/2],
                 'sw':   [x+self.width/2,   y-self.height/2],
             }
-            self.c = anchor_dict[val]
+            # nsew/tbrl
+            asepn, aseps, asepe, asepw = list(map(lambda i: self.asep[i], [0, 1, 2, 3]))
+            asep_dict = {
+                'c':    [0, 0],
+                'n':    [0, -asepn],
+                's':    [0, +aseps],
+                'e':    [+asepe, 0],
+                'w':    [-asepw, 0],
+                'ne':   [+asepe, -asepn],
+                'nw':   [-asepw, -asepn],
+                'se':   [+asepe, +aseps],
+                'sw':   [-asepw, +aseps],
+            }
+            c_val = list(map(lambda a,b: a-b, anchor_dict[val], asep_dict[val]))
+            self.c = c_val
         return prop
 
     anchor = decorateAnchor()
@@ -327,7 +335,6 @@ class node:
         @property
         def prop(self):
             # get nsew(=arg) from c and arg
-            # print(self.c)
             nsew_dict = {
                 'c':    [self.c[0],                 self.c[1]],
                 'n':    [self.c[0],                 self.c[1]-self.height/2],
@@ -339,7 +346,21 @@ class node:
                 'se':   [self.c[0]+self.width/2,    self.c[1]+self.height/2],
                 'sw':   [self.c[0]-self.width/2,    self.c[1]+self.height/2],
             }
-            return nsew_dict[arg]
+            # nsew/tbrl
+            asepn, aseps, asepe, asepw = list(map(lambda i: self.asep[i], [0, 1, 2, 3]))
+            asep_dict = {
+                'c':    [0, 0],
+                'n':    [0, -asepn],
+                's':    [0, +aseps],
+                'e':    [+asepe, 0],
+                'w':    [-asepw, 0],
+                'ne':   [+asepe, -asepn],
+                'nw':   [-asepw, -asepn],
+                'se':   [+asepe, +aseps],
+                'sw':   [-asepw, +aseps],
+            }
+            nsew_val = list(map(lambda a,b: a+b, nsew_dict[arg], asep_dict[arg]))
+            return nsew_val
         @prop.setter
         def prop(self, val):
             # change nsew and set c (-> xy)
@@ -356,7 +377,21 @@ class node:
                 'se':   [val[0]-self.width/2,   val[1]-self.height/2],
                 'sw':   [val[0]+self.width/2,   val[1]-self.height/2],
             }
-            self.c = val_dict[arg]
+            # nsew/tbrl
+            asepn, aseps, asepe, asepw = list(map(lambda i: self.asep[i], [0, 1, 2, 3]))
+            asep_dict = {
+                'c':    [0, 0],
+                'n':    [0, -asepn],
+                's':    [0, +aseps],
+                'e':    [+asepe, 0],
+                'w':    [-asepw, 0],
+                'ne':   [+asepe, -asepn],
+                'nw':   [-asepw, -asepn],
+                'se':   [+asepe, +aseps],
+                'sw':   [-asepw, +aseps],
+            }
+            c_val = list(map(lambda a,b: a-b, val_dict[arg], asep_dict[arg]))
+            self.c = c_val
         return prop
 
     nsew_list = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']
@@ -367,9 +402,9 @@ class node:
         exec(f"{nsew_key} = decorateNSEW('{nsew_key}')")
         exec(f"{tbrl_key} = decorateNSEW('{nsew_key}')")
 
-
     def place(self):
-        CONTEXT.move_to(self.sw[0], self.sw[1])
+        xy = [self.c[0]-self.width/2, self.c[1]+self.height/2]
+        CONTEXT.move_to(*xy)
 
     def write(self):
         if self.is_write:
@@ -380,7 +415,13 @@ class node:
 
     def stroke(self):
         if self.is_stroke:
-            CONTEXT.set_source_rgba(*self.stroke_rgba)
+            CONTEXT.set_source_rgba(0, 0.5, 0, 1)
+            CONTEXT.set_line_width(2)
+            # nsew/tbrl
+            ssept, ssepb, ssepr, ssepl = list(map(lambda i: self.ssep[i], [0, 1, 2, 3]))
+            rectxy = [self.c[0]-ssepl-self.width/2, self.c[1]-self.height/2-ssept]
+            rectwh = [self.width+ssepl+ssepr, self.height+ssept+ssepb]
+            CONTEXT.rectangle(*rectxy, *rectwh)
             if self.is_fill:
                 CONTEXT.stroke_preserve()
             else:
@@ -407,3 +448,4 @@ class node:
         #   otherwise new elements will start from the end point of the previous node.
         # See:
         #   https://pycairo.readthedocs.io/en/latest/reference/context.html#cairo.Context.stroke
+
