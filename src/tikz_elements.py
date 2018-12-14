@@ -75,7 +75,7 @@ class node:
             'is_append':    True,
         # text
             'is_write':     True,
-            '_text':        'TikzPy',
+            '_text':        '',
             '_font_size':   20,
             '_font_face':   'Arial Unicode MS',
             '_wh':          [0, 0],
@@ -170,13 +170,16 @@ class node:
             }
             arg_list = val_dict[arg]
 
-            CONTEXT.set_font_size(arg_list[0])
-            CONTEXT.select_font_face(arg_list[1], cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
-            self.xb, self.yb, self.ww, self.hh, self.xa, self.ya = list(map(lambda x: round(CONTEXT.text_extents(arg_list[2])[x], 2), [0, 1, 2, 3, 4, 5]))
-            CONTEXT.stroke()
-
-            self.width  = self.xa+self.xb
-            self.height = abs(self.ya+self.yb)
+            if self.text == '':
+                self.width, self.height = 0, 0
+            else:
+                CONTEXT.set_font_size(arg_list[0])
+                CONTEXT.select_font_face(arg_list[1], cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+                # Note: text_extents() takes most exec time of the whole program
+                self.xb, self.yb, self.ww, self.hh, self.xa, self.ya = list(map(lambda x: CONTEXT.text_extents(arg_list[2])[x], [0, 1, 2, 3, 4, 5]))
+                CONTEXT.stroke()
+                self.width  = round(self.xa+self.xb,      2)
+                self.height = round(abs(self.ya+self.yb), 2)
         return prop
 
     for key in ['text', 'font_size', 'font_face']:
@@ -404,5 +407,3 @@ class node:
         #   otherwise new elements will start from the end point of the previous node.
         # See:
         #   https://pycairo.readthedocs.io/en/latest/reference/context.html#cairo.Context.stroke
-
-
