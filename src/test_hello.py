@@ -17,12 +17,20 @@ node3.is_stroke = True
 # circle(x=node3.e[0], y=node3.e[1], r=1)
 
 # node3.e = [400, 250]
-# node3.text = 'π * 123 + 456 β ∬ 日月盈昃'
+node3.text = 'π * 123 + abc β ∬ 日月盈昃'
+print(node3.l)
+node3.anchor = 'sw'
+print(node3.c)
+print(node3.asepl)
+print(node3.asepe)
+node3.asept = 10
+print(node3.asep)
+node3.asep[1] = 10
+
 circle(x=node3.e[0], y=node3.e[1], r=2)
 circle(x=node3.n[0], y=node3.n[1], r=2)
 circle(x=node3.l[0], y=node3.l[1], r=2)
 circle(x=node3.b[0], y=node3.b[1], r=2)
-print(node3.l)
 
 # node_list = []
 # for i in range(0, 1000):

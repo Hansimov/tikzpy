@@ -55,6 +55,36 @@ class circle:
 
 # ============================================= #
 
+nsew_list = ['c', 'n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']
+tbrl_list = ['c', 't', 'b', 'r', 'l', 'tr', 'tl', 'br', 'bl']
+
+def nsewDict(w,h):
+    anchor_dict = {
+        'c':    [0,     0],
+        'n':    [0,     -h/2],
+        's':    [0,     +h/2],
+        'e':    [+w/2,  0],
+        'w':    [-w/2,  0],
+        'ne':   [+w/2,  -h/2],
+        'nw':   [-w/2,  -h/2],
+        'se':   [+w/2,  +h/2],
+        'sw':   [-w/2,  +h/2],
+    }
+    return anchor_dict
+
+def asepDict(asepn, aseps, asepe, asepw):
+    asep_dict = {
+        'c':    [0,      0],
+        'n':    [0,      -asepn],
+        's':    [0,      +aseps],
+        'e':    [+asepe, 0],
+        'w':    [-asepw, 0],
+        'ne':   [+asepe, -asepn],
+        'nw':   [-asepw, -asepn],
+        'se':   [+asepe, +aseps],
+        'sw':   [-asepw, +aseps],
+    }
+    return asep_dict
 
 # ============================================= #
 class node:
@@ -104,20 +134,6 @@ class node:
         if self.is_append:
             ELEMENTS.append(self)
 
-    # -------------|----------------
-    #   *    depends on     *
-    # -------------|----------------
-    # width,height |    xb,yb,xa,ya
-    # xb,yb,xa,ya  |    text, font_face, font_size
-    # -------------|----------------
-
-    # -------------|----------------
-    #   change     |   influenced   
-    # -------------|----------------
-    #   text       |    xb,yb,xa,ya (-> width,height)
-    #   font_face  |    xb,yb,xa,ya (-> width,height)
-    #   font_size  |    xb,yb,xa,ya (-> width,height)
-    # -------------|----------------
 
     def setPaintFont(self):
         # CONTEXT.select_font_face(self.face)
@@ -128,7 +144,6 @@ class node:
         for key, val in font_args.items():
             if key in self.__dict__:
                 val
-
 
     def decorateText(arg):
         # arg: 'text', 'font_size', 'font_face'
@@ -190,28 +205,23 @@ class node:
     for key in ['width', 'height']:
         exec(f"{key} = decorateWH('{key}')")
 
-    # ---------- |----------------
-    #   *    depends on     *
-    # ---------- |----------------
-    #   c        |    anchor, xy, nsew
-    #   anchor   |     /
-    #   xy       |    anchor, c, nsew
-    #   nsew     |    anchor, c, xy
-    # -----------|----------------
+    def decorateASEP(arg):
+        # arg: 'asep(n|s|e|w)'
+        @property
+        def prop(self):
+            idx = ['n','s','e','w'].index(arg[4])
+            return self.asep[idx]
+        @prop.setter
+        def prop(self, val):
+            idx = ['n','s','e','w'].index(arg[4])
+            self.asep[idx] = val
+        return prop
 
-    # -----------|----------------
-    #   change   |   influenced   
-    # -----------|----------------
-    #   c        |    xy, nsew
-    #   anchor   |    c (-> nsew) (fix xy)
-    #   xy       |    c (-> nsew)
-    #   nsew     |    c (-> xy)
-    # -----------|----------------
-
-    # Note: 
-    # 'anchor' has two meanings here:
-    #   1. (1-char str) value of 'anchor' attribute/property
-    #   2. (2-int list) collective name of 'n','s','e','w', ... attribute/property
+    for i in range(len(nsew_list[1:5])):
+        asep_nsew_key = 'asep' + nsew_list[1:5][i]
+        asep_tbrl_key = 'asep' + tbrl_list[1:5][i]
+        exec(f"{asep_nsew_key} = decorateASEP('{asep_nsew_key}')")
+        exec(f"{asep_tbrl_key} = decorateASEP('{asep_nsew_key}')")
 
     def decorateXY(arg):
         # arg: 'x', 'y', 'xy'
@@ -236,43 +246,23 @@ class node:
             val_list = val_dict[arg]
             self._xy = val_dict[arg]
 
-            anchor_dict = {
-                'c':    [val_list[0],                val_list[1]],
-                'n':    [val_list[0],                val_list[1]+self.height/2],
-                's':    [val_list[0],                val_list[1]-self.height/2],
-                'e':    [val_list[0]-self.width/2,   val_list[1]],
-                'w':    [val_list[0]+self.width/2,   val_list[1]],
-                'ne':   [val_list[0]-self.width/2,   val_list[1]+self.height/2],
-                'nw':   [val_list[0]+self.width/2,   val_list[1]+self.height/2],
-                'se':   [val_list[0]-self.width/2,   val_list[1]-self.height/2],
-                'sw':   [val_list[0]+self.width/2,   val_list[1]-self.height/2],
-            }
+            nsew_dict = nsewDict(*self.wh)
+            asep_dict = asepDict(*self.asep)
 
-            nsew_list = ['c', 'n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']
-            tbrl_list = ['c', 't', 'b', 'r', 'l', 'tr', 'tl', 'br', 'bl']
             anchor = self.anchor
             if not anchor in nsew_list:
                 anchor = nsew_list[tbrl_list.index(anchor)]
 
-            # nsew/tbrl
-            asepn, aseps, asepe, asepw = list(map(lambda i: self.asep[i], [0, 1, 2, 3]))
-            asep_dict = {
-                'c':    [0, 0],
-                'n':    [0, -asepn],
-                's':    [0, +aseps],
-                'e':    [+asepe, 0],
-                'w':    [-asepw, 0],
-                'ne':   [+asepe, -asepn],
-                'nw':   [-asepw, -asepn],
-                'se':   [+asepe, +aseps],
-                'sw':   [-asepw, +aseps],
-            }
-            c_val = list(map(lambda a,b: a-b, anchor_dict[anchor], asep_dict[anchor]))
-            self.c = c_val
+            self.c = list(map(lambda a,b,c: a-b-c, val_list, nsew_dict[anchor], asep_dict[anchor]))
         return prop
 
     for key in ['x', 'y', 'xy']:
         exec(f"{key} = decorateXY('{key}')")
+
+    # Note: 
+    # 'anchor' has two meanings here:
+    #   1. (1-char str) value of 'anchor' attribute/property
+    #   2. (2-int list) collective name of 'n','s','e','w', ... attribute/property
 
     def decorateAnchor():
         @property
@@ -283,49 +273,15 @@ class node:
         def prop(self, val):
             # change anchor (fix xy) and set c (-> nsew)
             # val: 1or2-char str, (anchor)
-            anchor_old = self._anchor
-            anchor_new = val
             self._anchor = val
-
-            # Do not use old xy to calc new c, 
-            #   because it costs much time and gets wrong results.
-            # Use old and new anchor to calc,
-            #   although a bit more complicated, it is fast.
-            x = self._xy[0]
-            y = self._xy[1]
-
-            nsew_list = ['c', 'n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']
-            tbrl_list = ['c', 't', 'b', 'r', 'l', 'tr', 'tl', 'br', 'bl']
 
             if not val in nsew_list:
                 val = nsew_list[tbrl_list.index(val)]
 
-            anchor_dict = {
-                'c':    [x,                y],
-                'n':    [x,                y+self.height/2],
-                's':    [x,                y-self.height/2],
-                'e':    [x-self.width/2,   y],
-                'w':    [x+self.width/2,   y],
-                'ne':   [x-self.width/2,   y+self.height/2],
-                'nw':   [x+self.width/2,   y+self.height/2],
-                'se':   [x-self.width/2,   y-self.height/2],
-                'sw':   [x+self.width/2,   y-self.height/2],
-            }
-            # nsew/tbrl
-            asepn, aseps, asepe, asepw = list(map(lambda i: self.asep[i], [0, 1, 2, 3]))
-            asep_dict = {
-                'c':    [0, 0],
-                'n':    [0, -asepn],
-                's':    [0, +aseps],
-                'e':    [+asepe, 0],
-                'w':    [-asepw, 0],
-                'ne':   [+asepe, -asepn],
-                'nw':   [-asepw, -asepn],
-                'se':   [+asepe, +aseps],
-                'sw':   [-asepw, +aseps],
-            }
-            c_val = list(map(lambda a,b: a-b, anchor_dict[val], asep_dict[val]))
-            self.c = c_val
+            nsew_dict = nsewDict(*self.wh)
+            asep_dict = asepDict(*self.asep)
+
+            self.c = list(map(lambda a,b,c: a-b-c, self._xy, nsew_dict[val], asep_dict[val]))
         return prop
 
     anchor = decorateAnchor()
@@ -335,72 +291,28 @@ class node:
         @property
         def prop(self):
             # get nsew(=arg) from c and arg
-            nsew_dict = {
-                'c':    [self.c[0],                 self.c[1]],
-                'n':    [self.c[0],                 self.c[1]-self.height/2],
-                's':    [self.c[0],                 self.c[1]+self.height/2],
-                'e':    [self.c[0]+self.width/2,    self.c[1]],
-                'w':    [self.c[0]-self.width/2,    self.c[1]],
-                'ne':   [self.c[0]+self.width/2,    self.c[1]-self.height/2],
-                'nw':   [self.c[0]-self.width/2,    self.c[1]-self.height/2],
-                'se':   [self.c[0]+self.width/2,    self.c[1]+self.height/2],
-                'sw':   [self.c[0]-self.width/2,    self.c[1]+self.height/2],
-            }
-            # nsew/tbrl
-            asepn, aseps, asepe, asepw = list(map(lambda i: self.asep[i], [0, 1, 2, 3]))
-            asep_dict = {
-                'c':    [0, 0],
-                'n':    [0, -asepn],
-                's':    [0, +aseps],
-                'e':    [+asepe, 0],
-                'w':    [-asepw, 0],
-                'ne':   [+asepe, -asepn],
-                'nw':   [-asepw, -asepn],
-                'se':   [+asepe, +aseps],
-                'sw':   [-asepw, +aseps],
-            }
-            nsew_val = list(map(lambda a,b: a+b, nsew_dict[arg], asep_dict[arg]))
+            nsew_dict = nsewDict(*self.wh)
+            asep_dict = asepDict(*self.asep)
+            nsew_val = list(map(lambda a,b,c: a+b+c, self.c, nsew_dict[arg], asep_dict[arg]))
             return nsew_val
         @prop.setter
         def prop(self, val):
             # change nsew and set c (-> xy)
             # val: 2-int list, (nsew)
             # same to xy setter
-            val_dict = {
-                'c':    [val[0],                val[1]],
-                'n':    [val[0],                val[1]+self.height/2],
-                's':    [val[0],                val[1]-self.height/2],
-                'e':    [val[0]-self.width/2,   val[1]],
-                'w':    [val[0]+self.width/2,   val[1]],
-                'ne':   [val[0]-self.width/2,   val[1]+self.height/2],
-                'nw':   [val[0]+self.width/2,   val[1]+self.height/2],
-                'se':   [val[0]-self.width/2,   val[1]-self.height/2],
-                'sw':   [val[0]+self.width/2,   val[1]-self.height/2],
-            }
-            # nsew/tbrl
-            asepn, aseps, asepe, asepw = list(map(lambda i: self.asep[i], [0, 1, 2, 3]))
-            asep_dict = {
-                'c':    [0, 0],
-                'n':    [0, -asepn],
-                's':    [0, +aseps],
-                'e':    [+asepe, 0],
-                'w':    [-asepw, 0],
-                'ne':   [+asepe, -asepn],
-                'nw':   [-asepw, -asepn],
-                'se':   [+asepe, +aseps],
-                'sw':   [-asepw, +aseps],
-            }
-            c_val = list(map(lambda a,b: a-b, val_dict[arg], asep_dict[arg]))
-            self.c = c_val
+
+            nsew_dict = nsewDict(*self.wh)
+            asep_dict = asepDict(*self.asep)
+            self.c = list(map(lambda a,b,c: a-b-c, val, nsew_dict[arg], asep_dict[arg]))
         return prop
 
-    nsew_list = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']
-    tbrl_list = ['t', 'b', 'r', 'l', 'tr', 'tl', 'br', 'bl']
-    for i in range(len(nsew_list)):
-        nsew_key = nsew_list[i]
-        tbrl_key = tbrl_list[i]
+    for i in range(len(nsew_list[1:])):
+        # Do not decorate 'c'
+        nsew_key = nsew_list[1:][i]
+        tbrl_key = tbrl_list[1:][i]
         exec(f"{nsew_key} = decorateNSEW('{nsew_key}')")
         exec(f"{tbrl_key} = decorateNSEW('{nsew_key}')")
+
 
     def place(self):
         xy = [self.c[0]-self.width/2, self.c[1]+self.height/2]
