@@ -12,7 +12,7 @@ def initTikzpy(filename='default.pdf', width=1280, height=720):
     # print(CONTEXT)
 
 def outputImg():
-    print('ELEMENTS SIZE: {}'.format(len(ELEMENTS)))
+    print('ELEMENTS NUM: {}'.format(len(ELEMENTS)))
     for ele in ELEMENTS:
         CONTEXT.save()
         ele.paint()

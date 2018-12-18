@@ -10,7 +10,7 @@ def importTikzInit():
 
 # ============================================= #
 class arc:
-    def __init__(self, append=True, x=100, y=100, r=50, beg=0, end=2.01*pi):
+    def __init__(self, append=True, x=100, y=100, r=50, begin=0, end=2.01*pi):
         importTikzInit()
         if append:
             ELEMENTS.append(self)
@@ -30,8 +30,9 @@ class arc:
         importTikzInit()
         # CONTEXT.move_to(self.x, self.y)
         CONTEXT.set_source_rgba(0.5, 0.0, 0.0, 0.5)
-        CONTEXT.arc(self.x, self.y, self.r, self.beg, self.end)
+        CONTEXT.arc(self.x, self.y, self.r, self.begin, self.end)
         CONTEXT.stroke()
+
 
 
 # ============================================= #
@@ -52,6 +53,50 @@ class circle:
         CONTEXT.stroke_preserve()
         CONTEXT.set_source_rgba(0.0, 0.0, 0.5, 0.5)
         CONTEXT.fill()
+
+
+# ============================================= #
+class line:
+    def __init__(self, **kwargs):
+        importTikzInit()
+        self.initArgs(kwargs)
+        self.initFuncs()
+
+    def initArgs(self, kwargs):
+        default_args = {
+        # others
+            'is_append':    True,
+        # position
+            'begin':        [0, 0],
+            'end':          [100, 100],
+        # stroke
+            'is_stroke':    True,
+            'stroke_rgba':  [0.0, 0.5, 1.0, 1.0],
+        }
+
+        for key, val in default_args.items():
+            setattr(self, key, val)
+
+        for key, val in kwargs.items():
+            setattr(self, key, val)
+
+
+    def initFuncs(self):
+        if self.is_append:
+            ELEMENTS.append(self)
+
+    def stroke(self):
+        if self.is_stroke:
+            CONTEXT.set_source_rgba(*self.stroke_rgba)
+            CONTEXT.set_line_width(2)
+            CONTEXT.line_to(*self.begin)
+            CONTEXT.line_to(*self.end)
+            CONTEXT.line_to(150,200)
+            CONTEXT.stroke()
+
+    def paint(self):
+        self.stroke()
+        CONTEXT.stroke()
 
 # ============================================= #
 
@@ -86,6 +131,9 @@ def asepDict(asepn, aseps, asepe, asepw):
     }
     return asep_dict
 
+
+
+
 # ============================================= #
 class node:
     # Text in PyCairo - ZetCode
@@ -95,9 +143,9 @@ class node:
         self.initArgs(kwargs)
         self.initFuncs()
 
-# Initialize args
-# Set args with inputs
-# Do something which in the args list
+    # - Initialize args
+    # - Set args with inputs
+    # - Do something which in the args list
 
     def initArgs(self, kwargs):
         default_args = {

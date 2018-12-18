@@ -18,13 +18,13 @@ node3.is_stroke = True
 
 # node3.e = [400, 250]
 node3.text = 'π * 123 + abc β ∬ 日月盈昃'
-print(node3.l)
+# print(node3.l)
 node3.anchor = 'sw'
-print(node3.c)
-print(node3.asepl)
-print(node3.asepe)
+# print(node3.c)
+# print(node3.asepl)
+# print(node3.asepe)
 node3.asept = 10
-print(node3.asep)
+# print(node3.asep)
 node3.asep[1] = 10
 
 circle(x=node3.e[0], y=node3.e[1], r=2)
@@ -40,5 +40,7 @@ circle(x=node3.b[0], y=node3.b[1], r=2)
 #     node_list.append(node(font_size=10, text='', font_face='Source Han Sans HW SC', x=cox, y=coy, anchor='c', text_rgba=[0.5,0.0,0.0,1.0]))
 #     # node_list[i].anchor = 'n'
 #     node_list.append(circle(x=cox, y=coy, r=10))
+
+line(begin=[50,50])
 
 outputImg()
