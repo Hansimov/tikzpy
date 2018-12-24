@@ -1,0 +1,11 @@
+\documentclass{standalone}
+\usepackage{tikz}
+
+\begin{document}
+
+\begin{tikzpicture}[x=1pt,y=1pt]
+    \draw [blue] plot [smooth] coordinates {(50,-50) (100,-80) (200,-20) (250,-90) (300, -30) (400,-80)};
+    \path (0pt,0pt) -- (400pt, -100pt);
+\end{tikzpicture}
+
+\end{document}
