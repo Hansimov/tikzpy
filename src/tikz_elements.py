@@ -37,21 +37,43 @@ class arc:
 
 # ============================================= #
 class circle:
-    def __init__(self, append=True, x=100, y=100, r=50):
+    def __init__(self, **kwargs):
         importTikzInit()
-        if append:
+        self.initArgs(kwargs)
+        self.initFuncs()
+
+    def initArgs(self, kwargs):
+        default_args = {
+        # others
+            'is_append':    True,
+        # position
+            'c':        [0, 0],
+            'r':        3,
+        # stroke
+            'is_stroke':    True,
+            'stroke_rgba':  [0.0, 0.5, 1.0, 1.0],
+        # fill
+            'is_fill':      True,
+            'fill_rgba':    [0.0, 0.0, 0.5, 0.5],
+        }
+
+        for key, val in default_args.items():
+            setattr(self, key, val)
+
+        for key, val in kwargs.items():
+            setattr(self, key, val)
+
+    def initFuncs(self):
+        if self.is_append:
             ELEMENTS.append(self)
-        self.x = x
-        self.y = y
-        self.r = r
 
     def paint(self):
         importTikzInit()
         # CONTEXT.move_to(self.x, self.y)
-        CONTEXT.set_source_rgba(0.0, 0.5, 0.0, 0.5)
-        CONTEXT.arc(self.x, self.y, self.r, 0, 2.01*pi)
+        CONTEXT.set_source_rgba(*self.stroke_rgba)
+        CONTEXT.arc(*self.c, self.r, 0, 2.01*pi)
         CONTEXT.stroke_preserve()
-        CONTEXT.set_source_rgba(0.0, 0.0, 0.5, 0.5)
+        CONTEXT.set_source_rgba(*self.fill_rgba)
         CONTEXT.fill()
 
 
@@ -69,6 +91,13 @@ class line:
         # position
             'begin':        [0, 0],
             'end':          [100, 100],
+            'marks':        [],
+            'points':       [],
+            'controls':     [],
+            'way':          '',
+        # dot
+            'is_dot':   True,
+            'dot_rgba':  [0.0, 0.5, 1.0, 1.0],
         # stroke
             'is_stroke':    True,
             'stroke_rgba':  [0.0, 0.5, 1.0, 1.0],
@@ -80,21 +109,25 @@ class line:
         for key, val in kwargs.items():
             setattr(self, key, val)
 
-
     def initFuncs(self):
         if self.is_append:
             ELEMENTS.append(self)
+
+    def dot(self):
+        if self.is_dot:
+            for point in self.points:
+                circle(c=point, r=3)
 
     def stroke(self):
         if self.is_stroke:
             CONTEXT.set_source_rgba(*self.stroke_rgba)
             CONTEXT.set_line_width(2)
-            CONTEXT.line_to(*self.begin)
-            CONTEXT.line_to(*self.end)
-            CONTEXT.line_to(150,200)
+            for point in self.points:
+                CONTEXT.line_to(*point)
             CONTEXT.stroke()
 
     def paint(self):
+        self.dot()
         self.stroke()
         CONTEXT.stroke()
 
@@ -130,8 +163,6 @@ def asepDict(asepn, aseps, asepe, asepw):
         'sw':   [-asepw, +aseps],
     }
     return asep_dict
-
-
 
 
 # ============================================= #

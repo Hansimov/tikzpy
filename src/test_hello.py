@@ -8,29 +8,31 @@ initTikzpy('test_hello.pdf', width=600, height=1500)
 # circ1 = circle(x=250, y=90, r=30)
 # circ2 = circle(x=350, y=90, r=1)
 
-xxx = 'π * 123 + 456 β ∬ 天地玄黄，宇宙洪荒' # 
+# xxx = u'π * 123 + 456 β ∬ Σ 天地玄黄，宇宙洪荒 \u27bd'
 # node1 = node(x=00, y=200, font_size=20, text=xxx, anchor='l')
 # node2 = node(x=10, y=225, font_size=20, text=xxx, font_face='Consolas-With-Yahei')
-node3 = node(anchor='l', x=20, y=250, font_size=20, text=xxx, font_face='Source Han Sans HW SC', text_rgba=[0.5,0.0,0.0,1.0])
+# node3 = node(anchor='l', x=20, y=250, font_size=20, text=xxx, font_face='Source Han Sans HW SC', text_rgba=[0.5,0.0,0.0,1.0])
+# node3.font_face = 'Arial Unicode MS'
 # node3.anchor = 'l'
-node3.is_stroke = True
+# node3.is_stroke = True
 # circle(x=node3.e[0], y=node3.e[1], r=1)
 
+
 # node3.e = [400, 250]
-node3.text = 'π * 123 + abc β ∬ 日月盈昃'
+# node3.text = 'π * 123 + abc β ∬ 日月盈昃'
 # print(node3.l)
-node3.anchor = 'sw'
+# node3.anchor = 'sw'
 # print(node3.c)
 # print(node3.asepl)
 # print(node3.asepe)
-node3.asept = 10
+# node3.asept = 10
 # print(node3.asep)
-node3.asep[1] = 10
+# node3.asep[1] = 10
 
-circle(x=node3.e[0], y=node3.e[1], r=2)
-circle(x=node3.n[0], y=node3.n[1], r=2)
-circle(x=node3.l[0], y=node3.l[1], r=2)
-circle(x=node3.b[0], y=node3.b[1], r=2)
+# circle(x=node3.e[0], y=node3.e[1], r=2)
+# circle(x=node3.n[0], y=node3.n[1], r=2)
+# circle(x=node3.l[0], y=node3.l[1], r=2)
+# print(type(circle(x=node3.b[0], y=node3.b[1], r=2)))
 
 # node_list = []
 # for i in range(0, 1000):
@@ -41,6 +43,10 @@ circle(x=node3.b[0], y=node3.b[1], r=2)
 #     # node_list[i].anchor = 'n'
 #     node_list.append(circle(x=cox, y=coy, r=10))
 
-line(begin=[50,50])
+point_list = [[50,50], [100,80], [200,20],[300,50], [50, 100], [50,50]]
+# for point in point_list:
+#     circle(c=point, r=3)
+
+line(points=point_list)
 
 outputImg()
