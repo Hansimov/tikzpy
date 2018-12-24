@@ -78,6 +78,38 @@ class circle:
 
 
 # ============================================= #
+def vecLen(vec):
+    x, y = vec
+    return sqrt(x**2+y**2)
+
+def vecNorm(vec):
+    x, y = vec
+    dist = vecLen(vec)
+    norm_vec = [round(x/dist,2), round(y/dist,2)]
+    return norm_vec
+
+def vecAdd(*vecs):
+    x, y = 0, 0
+    for vec in vecs:
+        x += vec[0]
+        y += vec[1]
+    return [x, y]
+
+def vecSub(vec1,vec2):
+    x1, y1 = vec1
+    x2, y2 = vec2
+    return [x1-x2, y1-y2]
+
+def vecDot(vec1, vec2):
+    x1, y1 = vec1
+    x2, y2 = vec2
+    return round(x1*x2+y1*y2 ,2)
+
+def vecScale(vec, num):
+    x, y = vec
+    return [x*num, y*num]
+
+# ============================================= #
 class line:
     def __init__(self, **kwargs):
         importTikzInit()
@@ -89,8 +121,6 @@ class line:
         # others
             'is_append':    True,
         # position
-            'begin':        [0, 0],
-            'end':          [100, 100],
             'marks':        [],
             'points':       [],
             'controls':     [],
@@ -100,6 +130,7 @@ class line:
             'dot_rgba':  [0.0, 0.5, 1.0, 1.0],
         # stroke
             'is_stroke':    True,
+            'is_smooth':    False,
             'stroke_rgba':  [0.0, 0.5, 1.0, 1.0],
         }
 
@@ -116,14 +147,71 @@ class line:
     def dot(self):
         if self.is_dot:
             for point in self.points:
-                circle(c=point, r=3)
+                circle(c=point, r=2)
+            for point in self.controls:
+                circle(c=point, r=4)
+
+    def calcControls(self):
+        # num of points:    N
+        # num of curves:    N-1
+        # num of controls:  2*(N-2)
+        # each curve depends on 2 points and 2 controls
+        # points i, i+1, i+2 determine controls 2i, 2i+1
+        # i: 0 -> N-3
+        for i in range(len(self.points)-2):
+            # Of course I can use numpy to simplify,
+            #   but it is too heavy,
+            #   and I want to keep dependencies as few as possible
+            p1 = self.points[i]
+            p2 = self.points[i+1]
+            p3 = self.points[i+2]
+
+            v12 = vecSub(p1,p2)
+            v32 = vecSub(p3,p2)
+
+            vperp = vecNorm(vecAdd(vecNorm(v12), vecNorm(v32)))
+
+            w12 = vecScale(vperp, vecDot(vperp, v12))
+            w32 = vecScale(vperp, vecDot(vperp, v32))
+
+            u12 = vecSub(v12, w12)
+            u32 = vecSub(v32, w32)
+
+            vs = 20
+
+            c1 = vecAdd(vecScale(u12, vs/vecLen(u12)), p2)
+            c2 = vecAdd(vecScale(u32, vs/vecLen(u32)), p2)
+
+            if i == 0:
+                # u11 = vecSub(vecAdd(u12, p2),p1)
+                # c0 = vecAdd(vecScale(u11, vs/vecLen(u11)), p1)
+                c0 = c1
+                self.controls.append(c0)
+            self.controls.append(c1)
+            if i == len(self.points) - 3:
+                self.controls.append(c2)
+            self.controls.append(c2)
+
 
     def stroke(self):
         if self.is_stroke:
             CONTEXT.set_source_rgba(*self.stroke_rgba)
-            CONTEXT.set_line_width(2)
-            for point in self.points:
-                CONTEXT.line_to(*point)
+            CONTEXT.set_line_width(1)
+            if self.is_smooth:
+                self.calcControls()
+                for i in range(len(self.points) - 1):
+                    p1 = self.points[i]
+                    p2 = self.points[i+1]
+
+                    c1 = self.controls[2*i]
+                    c2 = self.controls[2*i+1]
+                    CONTEXT.move_to(*p1)
+                    CONTEXT.curve_to(*c1, *c2, *p2)
+
+            else:
+                for point in self.points:
+                    CONTEXT.line_to(*point)
+
             CONTEXT.stroke()
 
     def paint(self):

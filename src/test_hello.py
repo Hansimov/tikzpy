@@ -1,7 +1,7 @@
 from tikzpy import *
 import tikzpy
 
-initTikzpy('test_hello.pdf', width=600, height=1500)
+initTikzpy('test_hello.pdf', width=400, height=100)
 # arc1 = arc(x=50, y=50, r=50)
 # arc2 = arc(x=150, y=90, beg=0.5*pi)
 # arc2.r, arc2.end = 60, 1.9 * pi
@@ -16,7 +16,6 @@ initTikzpy('test_hello.pdf', width=600, height=1500)
 # node3.anchor = 'l'
 # node3.is_stroke = True
 # circle(x=node3.e[0], y=node3.e[1], r=1)
-
 
 # node3.e = [400, 250]
 # node3.text = 'π * 123 + abc β ∬ 日月盈昃'
@@ -43,10 +42,13 @@ initTikzpy('test_hello.pdf', width=600, height=1500)
 #     # node_list[i].anchor = 'n'
 #     node_list.append(circle(x=cox, y=coy, r=10))
 
-point_list = [[50,50], [100,80], [200,20],[300,50], [50, 100], [50,50]]
+point_list = [[50,50], [100,80], [200,20], [250,90], [300, 30], [400,80]]
 # for point in point_list:
 #     circle(c=point, r=3)
 
-line(points=point_list)
+line1 = line(points=point_list)
+line1.is_smooth = True
+# line1.is_dot = False
+# print(line1.points[0], line1.points[-1])
 
 outputImg()
