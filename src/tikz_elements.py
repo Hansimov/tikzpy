@@ -131,6 +131,7 @@ class line:
         # stroke
             'is_stroke':    True,
             'is_smooth':    False,
+            'smoothness':   0.25,
             'stroke_rgba':  [0.0, 0.5, 1.0, 1.0],
         }
 
@@ -170,6 +171,7 @@ class line:
             v32 = vecSub(p3,p2)
 
             vperp = vecNorm(vecAdd(vecNorm(v12), vecNorm(v32)))
+            # vperp = vecNorm(vecAdd(v12, v32))
 
             w12 = vecScale(vperp, vecDot(vperp, v12))
             w32 = vecScale(vperp, vecDot(vperp, v32))
@@ -177,20 +179,28 @@ class line:
             u12 = vecSub(v12, w12)
             u32 = vecSub(v32, w32)
 
-            vs = 20
+            c1 = vecAdd(vecScale(u12, self.smoothness), p2)
+            c2 = vecAdd(vecScale(u32, self.smoothness), p2)
 
-            c1 = vecAdd(vecScale(u12, vs/vecLen(u12)), p2)
-            c2 = vecAdd(vecScale(u32, vs/vecLen(u32)), p2)
-
+            # circle(c=c1, r=2, fill_rgba=[0, 0.5, 0, 1.0])
+            # circle(c=c2, r=2, fill_rgba=[0.5, 0, 0, 1.0])
+            # CONTEXT.move_to(*c1)
+            # CONTEXT.line_to(*c2)
             if i == 0:
-                # u11 = vecSub(vecAdd(u12, p2),p1)
-                # c0 = vecAdd(vecScale(u11, vs/vecLen(u11)), p1)
-                c0 = c1
+                x11 = vecSub(c1, p1)
+                c0 = vecAdd(vecScale(x11, 2*self.smoothness), p1)
                 self.controls.append(c0)
-            self.controls.append(c1)
+                self.controls.append(c1)
+            else:
+                self.controls.append(c1)
+
             if i == len(self.points) - 3:
                 self.controls.append(c2)
-            self.controls.append(c2)
+                x23 = vecSub(c2, p3)
+                c3 = vecAdd(vecScale(x23, 2*self.smoothness), p3)
+                self.controls.append(c3)
+            else:
+                self.controls.append(c2)
 
 
     def stroke(self):
