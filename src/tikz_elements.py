@@ -348,18 +348,33 @@ class line:
 
                     c1 = self.controls[2*i]
                     c2 = self.controls[2*i+1]
+                    # circle(c=p1)
+                    # circle(c=p2)
+
+                    if i == len(self.points)-2 and self.is_arrow:
+                        self.calcArrow()
+                        p2 = self.tip.c
+                    # if self.tip.len is too large,
+                    # then the last curve will be strange
                     CONTEXT.move_to(*p1)
                     CONTEXT.curve_to(*c1, *c2, *p2)
 
             else:
                 for point in self.points:
                     CONTEXT.line_to(*point)
-
             CONTEXT.stroke()
 
+    def calcArrow(self):
+        if self.is_smooth:
+            if self.is_stroke:
+                self.calcControls()
+            self.tip.ax = [self.controls[-1], self.points[-1]]
+        else:
+            self.tip.ax = [self.points[-2], self.points[-1]]
 
     def arrow(self):
-        self.tip.ax = [self.points[-2], self.points[-1]]
+        if not self.is_stroke:
+            self.calcArrow()
         self.tip.paint()
 
     def paint(self):

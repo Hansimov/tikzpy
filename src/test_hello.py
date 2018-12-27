@@ -42,7 +42,7 @@ initTikzpy('test_hello.pdf', width=600, height=500)
 #     # node_list[i].anchor = 'n'
 #     node_list.append(circle(x=cox, y=coy, r=10))
 
-point_list = [[80,50], [100,80], [200,20], [250,90], [400, 30], [490,100]]
+point_list = [[100,50], [100,80], [200,20], [250,90], [320, 30], [400,100]]
 # for point in point_list:
 #     circle(c=point, r=3)
 
