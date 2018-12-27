@@ -138,5 +138,15 @@ Mechanisms
 Append each new object to a global list,
 and display all of the (unhidden) objects in the list at last.
 
+
+Which mechanism below is better?
+    * separate `shape` and `node`  
+        - easy to combine shape and node
+        - do one thing and do it well
+    * use node as base class of shape
+        - give shape more capabilities (anchor, nsew, text)
+    * implement both
+
+
  -->
 
