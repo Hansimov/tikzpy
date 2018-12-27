@@ -8,6 +8,63 @@ def importTikzInit():
     import tikz_init
     ELEMENTS, CONTEXT = tikz_init.ELEMENTS, tikz_init.CONTEXT
 
+
+class vec(list):
+    def __add__(self, other):
+        vectmp = vec(self)
+        for i in range(len(self)):
+            vectmp[i] = self[i] + other[i]
+        return vectmp
+
+    __radd__ = __add__
+
+    def __sub__(self, other):
+        vectmp = vec(self)
+        for i in range(len(self)):
+            vectmp[i] = self[i] - other[i]
+        return vectmp
+
+    __rsub__ = __sub__
+
+    def __mul__(self, other):
+        vectmp = vec(self)
+        for i in range(len(self)):
+            vectmp[i] = self[i] * other
+        return vectmp
+
+    __rmul__ = __mul__
+
+    def __truediv__(self, other):
+        vectmp = vec(self)
+        for i in range(len(self)):
+            vectmp[i] = self[i] / other
+        return vectmp
+
+    __rtruediv__ = __truediv__
+
+    @property
+    def norm(self):
+        square_sum = 0
+        for i in range(len(self)):
+            square_sum += self[i]**2
+        norm = sqrt(square_sum)
+        return norm
+
+    @property
+    def unit(self):
+        vectmp = vec(self)
+        norm = self.norm
+        for i in range(len(self)):
+            vectmp[i] /= norm
+        return vectmp
+
+    def dot(self, other):
+        dot_product = 0
+        for i in range(len(self)):
+            dot_product += self[i] * other[i]
+        return dot_product
+
+
 # ============================================= #
 class arc:
     def __init__(self, append=True, x=100, y=100, r=50, begin=0, end=2.01*pi):
@@ -27,12 +84,11 @@ class arc:
     #     super().__setattr__(attr, value)
 
     def paint(self):
-        importTikzInit()
-        # CONTEXT.move_to(self.x, self.y)
+        CONTEXT.save()
         CONTEXT.set_source_rgba(0.5, 0.0, 0.0, 0.5)
         CONTEXT.arc(self.x, self.y, self.r, self.begin, self.end)
         CONTEXT.stroke()
-
+        CONTEXT.restore()
 
 
 # ============================================= #
@@ -54,7 +110,7 @@ class circle:
             'stroke_rgba':  [0.0, 0.5, 1.0, 1.0],
         # fill
             'is_fill':      True,
-            'fill_rgba':    [0.0, 0.0, 0.5, 0.5],
+            'fill_rgba':    [0.0, 1.0, 0.0, 0.8],
         }
 
         for key, val in default_args.items():
@@ -68,46 +124,83 @@ class circle:
             ELEMENTS.append(self)
 
     def paint(self):
-        importTikzInit()
-        # CONTEXT.move_to(self.x, self.y)
-        CONTEXT.set_source_rgba(*self.stroke_rgba)
+        CONTEXT.save()
         CONTEXT.arc(*self.c, self.r, 0, 2.01*pi)
-        CONTEXT.stroke_preserve()
+        # CONTEXT.set_source_rgba(*self.stroke_rgba)
+        # CONTEXT.stroke_preserve()
         CONTEXT.set_source_rgba(*self.fill_rgba)
         CONTEXT.fill()
+        CONTEXT.restore()
 
 
 # ============================================= #
-def vecLen(vec):
-    x, y = vec
-    return sqrt(x**2+y**2)
+class tip:
+    def __init__(self, **kwargs):
+        importTikzInit()
+        self.initArgs(kwargs)
+        self.initFuncs()
 
-def vecNorm(vec):
-    x, y = vec
-    dist = vecLen(vec)
-    norm_vec = [round(x/dist,2), round(y/dist,2)]
-    return norm_vec
+    def initArgs(self, kwargs):
+        n = 30
+        default_args = {
+        # others
+            'is_append':    True,
+        # position
+            'e':        [100, 100],
+            'n':        [50, 100-n],
+            'c':        [70, 100],
+            's':        [50, 100+n],
+        # axis
+            'ax':       [[10,10],[20,20]],
+            'width':    5,
+            'length':   10,
+            'inset':    4,
+        # shape
+            'shape':    'stealth',
+        # stroke
+            'is_stroke':    True,
+            'stroke_rgba':  [0.0, 0.0, 0.0, 1.0],
+            'is_fill':      True,
+            'fill_rgba':    [0.0, 0.0, 0.0, 1.0],
+        }
 
-def vecAdd(*vecs):
-    x, y = 0, 0
-    for vec in vecs:
-        x += vec[0]
-        y += vec[1]
-    return [x, y]
+        for key, val in default_args.items():
+            setattr(self, key, val)
 
-def vecSub(vec1,vec2):
-    x1, y1 = vec1
-    x2, y2 = vec2
-    return [x1-x2, y1-y2]
+        for key, val in kwargs.items():
+            setattr(self, key, val)
 
-def vecDot(vec1, vec2):
-    x1, y1 = vec1
-    x2, y2 = vec2
-    return round(x1*x2+y1*y2 ,2)
+    def initFuncs(self):
+        if self.is_append:
+            ELEMENTS.append(self)
 
-def vecScale(vec, num):
-    x, y = vec
-    return [x*num, y*num]
+    def stroke(self):
+        if self.shape == 'stealth':
+            CONTEXT.line_to(*self.e)
+            CONTEXT.line_to(*self.n)
+            CONTEXT.line_to(*self.c)
+            CONTEXT.line_to(*self.s)
+            CONTEXT.close_path()
+
+        if self.is_stroke:
+            CONTEXT.set_source_rgba(*self.stroke_rgba)
+            if self.is_fill:
+                CONTEXT.stroke_preserve()
+            else:
+                CONTEXT.stroke()
+
+    def fill(self):
+        if self.is_fill:
+            CONTEXT.set_source_rgba(*self.fill_rgba)
+            CONTEXT.fill()
+
+    def paint(self):
+        CONTEXT.save()
+        self.stroke()
+        self.fill()
+        CONTEXT.stroke()
+        CONTEXT.restore()
+
 
 # ============================================= #
 class line:
@@ -126,8 +219,12 @@ class line:
             'controls':     [],
             'way':          '',
         # dot
-            'is_dot':   True,
+            'is_dot':   False,
             'dot_rgba':  [0.0, 0.5, 1.0, 1.0],
+        # arrow
+            'head':         '->',
+            'tail':         '',
+            'arrow_stroke': [0.0, 1.0, 1.0, 1.0],
         # stroke
             'is_stroke':    True,
             'is_smooth':    False,
@@ -151,6 +248,8 @@ class line:
                 circle(c=point, r=2)
             for point in self.controls:
                 circle(c=point, r=4)
+    def arrow(self):
+        pass
 
     def calcControls(self):
         # num of points:    N
@@ -163,32 +262,32 @@ class line:
             # Of course I can use numpy to simplify,
             #   but it is too heavy,
             #   and I want to keep dependencies as few as possible
-            p1 = self.points[i]
-            p2 = self.points[i+1]
-            p3 = self.points[i+2]
+            p1 = vec(self.points[i])
+            p2 = vec(self.points[i+1])
+            p3 = vec(self.points[i+2])
 
-            v12 = vecSub(p1,p2)
-            v32 = vecSub(p3,p2)
+            v12 = p1 - p2
+            v32 = p3 - p2
 
-            vperp = vecNorm(vecAdd(vecNorm(v12), vecNorm(v32)))
-            # vperp = vecNorm(vecAdd(v12, v32))
+            vperp = (v12.unit + v32.unit).unit
+            # vperp = (v12 + v32).unit
 
-            w12 = vecScale(vperp, vecDot(vperp, v12))
-            w32 = vecScale(vperp, vecDot(vperp, v32))
+            w12 = vperp * vperp.dot(v12)
+            w32 = vperp * vperp.dot(v32)
 
-            u12 = vecSub(v12, w12)
-            u32 = vecSub(v32, w32)
+            u12 = v12 - w12
+            u32 = v32 - w32
 
-            c1 = vecAdd(vecScale(u12, self.smoothness), p2)
-            c2 = vecAdd(vecScale(u32, self.smoothness), p2)
+            c1 = self.smoothness * u12 + p2
+            c2 = self.smoothness * u32 + p2
 
             # circle(c=c1, r=2, fill_rgba=[0, 0.5, 0, 1.0])
             # circle(c=c2, r=2, fill_rgba=[0.5, 0, 0, 1.0])
             # CONTEXT.move_to(*c1)
             # CONTEXT.line_to(*c2)
             if i == 0:
-                x11 = vecSub(c1, p1)
-                c0 = vecAdd(vecScale(x11, 2*self.smoothness), p1)
+                x11 = c1 - p1
+                c0 =  2*self.smoothness * x11 + p1
                 self.controls.append(c0)
                 self.controls.append(c1)
             else:
@@ -196,17 +295,16 @@ class line:
 
             if i == len(self.points) - 3:
                 self.controls.append(c2)
-                x23 = vecSub(c2, p3)
-                c3 = vecAdd(vecScale(x23, 2*self.smoothness), p3)
+                x23 = c2 - p3
+                c3 = self.smoothness * x23 + p3
                 self.controls.append(c3)
             else:
                 self.controls.append(c2)
 
-
     def stroke(self):
         if self.is_stroke:
             CONTEXT.set_source_rgba(*self.stroke_rgba)
-            CONTEXT.set_line_width(1)
+            CONTEXT.set_line_width(0.4)
             if self.is_smooth:
                 self.calcControls()
                 for i in range(len(self.points) - 1):
@@ -225,9 +323,12 @@ class line:
             CONTEXT.stroke()
 
     def paint(self):
+        CONTEXT.save()
         self.dot()
         self.stroke()
+        self.arrow()
         CONTEXT.stroke()
+        CONTEXT.restore()
 
 # ============================================= #
 
@@ -528,7 +629,7 @@ class node:
             CONTEXT.fill()
 
     def paint(self):
-        # importTikzInit()
+        CONTEXT.save()
         self.write()
         self.stroke()
         self.fill()
@@ -537,4 +638,29 @@ class node:
         #   otherwise new elements will start from the end point of the previous node.
         # See:
         #   https://pycairo.readthedocs.io/en/latest/reference/context.html#cairo.Context.stroke
+        CONTEXT.restore()
 
+# ============================================= #
+class newPage:
+    def __init__(self, **kwargs):
+        importTikzInit()
+        self.initArgs(kwargs)
+        self.initFuncs()
+
+    def initArgs(self, kwargs):
+        default_args = {
+        # others
+            'is_append':    True,
+        }
+
+        for key, val in default_args.items():
+            setattr(self, key, val)
+        for key, val in kwargs.items():
+            setattr(self, key, val)
+
+    def initFuncs(self):
+        if self.is_append:
+            ELEMENTS.append(self)
+
+    def paint(self):
+        CONTEXT.show_page()

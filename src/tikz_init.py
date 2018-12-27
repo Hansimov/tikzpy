@@ -14,6 +14,4 @@ def initTikzpy(filename='default.pdf', width=1280, height=720):
 def outputImg():
     print('ELEMENTS NUM: {}'.format(len(ELEMENTS)))
     for ele in ELEMENTS:
-        CONTEXT.save()
         ele.paint()
-        CONTEXT.restore()
