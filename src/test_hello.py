@@ -42,19 +42,22 @@ initTikzpy('test_hello.pdf', width=600, height=500)
 #     # node_list[i].anchor = 'n'
 #     node_list.append(circle(x=cox, y=coy, r=10))
 
-point_list = [[80,50], [100,80], [200,20], [250,90], [400, 30], [450,100]]
+point_list = [[80,50], [100,80], [200,20], [250,90], [400, 30], [490,100]]
 # for point in point_list:
 #     circle(c=point, r=3)
 
 line1 = line(points=point_list)
 line1.is_smooth = True
-line1.is_dot = True
+# line1.is_dot = True
 # line1.smoothness = 0.25
 
 # print(line1.points[0], line1.points[-1])
 # line2 = line(points=point_list, stroke_rgba=[1.0,0,0,1.0])
+line1.tip.len = 15
+# line1.tip.angle = 1.4*pi
+# line1.tip.ratio = 0.3
+line1.tip.is_fill = False
 
-tip()
 
 outputImg()
 

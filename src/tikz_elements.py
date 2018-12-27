@@ -42,6 +42,12 @@ class vec(list):
 
     __rtruediv__ = __truediv__
 
+    def __neg__(self):
+        vectmp = vec(self)
+        for i in range(len(self)):
+            vectmp[i] = -self[i]
+        return vectmp
+
     @property
     def norm(self):
         square_sum = 0
@@ -63,6 +69,10 @@ class vec(list):
         for i in range(len(self)):
             dot_product += self[i] * other[i]
         return dot_product
+
+    @property
+    def orth(self):
+        return vec([self[1], -self[0]])
 
 
 # ============================================= #
@@ -141,27 +151,21 @@ class tip:
         self.initFuncs()
 
     def initArgs(self, kwargs):
-        n = 30
         default_args = {
         # others
             'is_append':    True,
-        # position
-            'e':        [100, 100],
-            'n':        [50, 100-n],
-            'c':        [70, 100],
-            's':        [50, 100+n],
-        # axis
-            'ax':       [[10,10],[20,20]],
-            'width':    5,
-            'length':   10,
-            'inset':    4,
         # shape
             'shape':    'stealth',
         # stroke
             'is_stroke':    True,
-            'stroke_rgba':  [0.0, 0.0, 0.0, 1.0],
+            'stroke_rgba':  [0.0, 0.0, 1.0, 1.0],
             'is_fill':      True,
             'fill_rgba':    [0.0, 0.0, 0.0, 1.0],
+        # stealth
+            'ax':           [[50, 50], [100, 50]],
+            'len':          15,
+            'ratio':        0.35,
+            'angle':        pi*1/5,
         }
 
         for key, val in default_args.items():
@@ -174,16 +178,49 @@ class tip:
         if self.is_append:
             ELEMENTS.append(self)
 
-    def stroke(self):
-        if self.shape == 'stealth':
-            CONTEXT.line_to(*self.e)
-            CONTEXT.line_to(*self.n)
-            CONTEXT.line_to(*self.c)
-            CONTEXT.line_to(*self.s)
-            CONTEXT.close_path()
+    @property
+    def inset(self):
+        return self.ratio * self.len
+    @property
+    def c(self):
+        ax0, ax1 = vec(self.ax[0]), vec(self.ax[1])
+        c = (1-self.ratio)*self.len * (ax0-ax1).unit + ax1
+        # circle(c=c, r=1)
+        return c
+    @property
+    def foot(self):
+        ax0, ax1 = vec(self.ax[0]), vec(self.ax[1])
+        foot = self.len * (ax0-ax1).unit + ax1
+        # circle(c=foot, r=1)
+        return foot
+    @property
+    def end(self):
+        end = self.ax[1]
+        # circle(c=end, r=1)
+        return end
 
+    @property
+    def wing(self):
+        wing = [0, 0]
+        u = self.foot - self.end
+        v = tan(self.angle/2) * u.orth.unit * self.len
+        wing[0] = self.foot + v
+        wing[1] = self.foot - v
+        # circle(c=wing[0], r=1)
+        # circle(c=wing[1], r=1)
+        return wing
+
+    def stroke(self):
         if self.is_stroke:
+            if self.shape == 'stealth':
+                CONTEXT.line_to(*self.end)
+                CONTEXT.line_to(*self.wing[0])
+                CONTEXT.line_to(*self.c)
+                CONTEXT.line_to(*self.wing[1])
+                CONTEXT.close_path()
+
             CONTEXT.set_source_rgba(*self.stroke_rgba)
+            CONTEXT.set_line_width(0.2)
             if self.is_fill:
                 CONTEXT.stroke_preserve()
             else:
@@ -222,14 +259,14 @@ class line:
             'is_dot':   False,
             'dot_rgba':  [0.0, 0.5, 1.0, 1.0],
         # arrow
-            'head':         '->',
-            'tail':         '',
-            'arrow_stroke': [0.0, 1.0, 1.0, 1.0],
+            'is_arrow':       True,
         # stroke
             'is_stroke':    True,
             'is_smooth':    False,
             'smoothness':   0.25,
             'stroke_rgba':  [0.0, 0.5, 1.0, 1.0],
+        # tip
+            'tip':           tip(is_append=False),
         }
 
         for key, val in default_args.items():
@@ -248,8 +285,6 @@ class line:
                 circle(c=point, r=2)
             for point in self.controls:
                 circle(c=point, r=4)
-    def arrow(self):
-        pass
 
     def calcControls(self):
         # num of points:    N
@@ -321,6 +356,11 @@ class line:
                     CONTEXT.line_to(*point)
 
             CONTEXT.stroke()
+
+
+    def arrow(self):
+        self.tip.ax = [self.points[-2], self.points[-1]]
+        self.tip.paint()
 
     def paint(self):
         CONTEXT.save()
