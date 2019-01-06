@@ -8,7 +8,7 @@ def importTikzInit():
     import tikz_init
     ELEMENTS, CONTEXT = tikz_init.ELEMENTS, tikz_init.CONTEXT
 
-
+# ============================================= #
 class vec(list):
     def __add__(self, other):
         vectmp = vec(self)
@@ -75,6 +75,9 @@ class vec(list):
         return vec([self[1], -self[0]])
 
 
+# ============================================= #
+class group:
+    pass
 # ============================================= #
 class arc:
     def __init__(self, append=True, x=100, y=100, r=50, begin=0, end=2.01*pi):
@@ -339,7 +342,7 @@ class line:
     def stroke(self):
         if self.is_stroke:
             CONTEXT.set_source_rgba(*self.stroke_rgba)
-            CONTEXT.set_line_width(0.4)
+            CONTEXT.set_line_width(1)
             if self.is_smooth:
                 self.calcControls()
                 for i in range(len(self.points) - 1):

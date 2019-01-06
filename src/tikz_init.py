@@ -15,3 +15,5 @@ def outputImg():
     print('ELEMENTS NUM: {}'.format(len(ELEMENTS)))
     for ele in ELEMENTS:
         ele.paint()
+        # print(type(ele))
+    PDF_SURFACE.write_to_png('z_test_hello.png')
