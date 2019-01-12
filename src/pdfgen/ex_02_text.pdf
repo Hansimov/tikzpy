@@ -34,9 +34,15 @@ endobj
     <<  /Length 73 >>
 stream
     BT
-        /F1 23 Tf
+        /F1 20 Tf
         200 200 Td
-        (Hello World) Tj
+        (This ) Tj
+        -10 Ts
+        (text ) Tj
+        10 Ts
+        (moves ) Tj
+        0 Ts
+        (around) Tj
     ET
 endstream
 endobj
@@ -49,7 +55,7 @@ endobj
     <<  /Type /Font
         /Subtype /Type1
         /Name /F1
-        /BaseFont /Helvetica
+        /BaseFont /MicrosoftYahei
         /Encoding /MacRomanEncoding
     >>
 endobj

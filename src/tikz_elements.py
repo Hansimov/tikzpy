@@ -444,7 +444,9 @@ class node:
             '_text':        '',
             '_font_size':   20,
             '_font_face':   'Arial Unicode MS',
-            'wh':          [0, 0],
+            '_font_old':    -1,
+            '_font_new':    0,
+            'wh':           [0, 0],
             'text_rgba':    [0.0, 0.0, 0.5, 1.0],
         # position
             '_anchor':      'c',
@@ -470,16 +472,24 @@ class node:
         if self.is_append:
             ELEMENTS.append(self)
 
-
     def setPaintFont(self):
-        # CONTEXT.select_font_face(self.face)
-        font_args = {
-            'font_size': CONTEXT.set_font_size(self.font_size),
-            'font_face': CONTEXT.select_font_face(self.font_face, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
-        }
-        for key, val in font_args.items():
-            if key in self.__dict__:
-                val
+        CONTEXT.set_font_size(self.font_size)
+        CONTEXT.select_font_face(self.font_face, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+
+    def updateWH(self):
+        if self._font_old == self._font_new:
+            pass
+        elif self.text == '':
+            self.wh = [0,0]
+        else:
+            self.setPaintFont()
+            # Note: text_extents() takes most exec time of the whole program
+            xb, yb, ww, hh, xa, ya = CONTEXT.text_extents(self.text)
+            CONTEXT.stroke()
+            self.wh[0] = round(xa+xb,      2)
+            self.wh[1] = round(abs(ya+yb), 2)
+            self._font_old = self._font_new
+            # print(self._font_old, self._font_new)
 
     def decorateText(arg):
         # arg: 'text', 'font_size', 'font_face'
@@ -495,24 +505,17 @@ class node:
         @prop.setter
         def prop(self, val):
             # val: int (font_size) / str (font_face) / str (text)
-            exec(f"self._{arg} = val")
-            val_dict = {
-                'font_size': [val,             self._font_face, self._text],
-                'font_face': [self._font_size, val,             self._text],
-                'text':      [self._font_size, self._font_face, val],
-            }
-            arg_list = val_dict[arg]
+            # exec(f"self._{arg} = val")
 
-            if self.text == '':
-                self.width, self.height = 0, 0
-            else:
-                CONTEXT.set_font_size(arg_list[0])
-                CONTEXT.select_font_face(arg_list[1], cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
-                # Note: text_extents() takes most exec time of the whole program
-                self.xb, self.yb, self.ww, self.hh, self.xa, self.ya = list(map(lambda x: CONTEXT.text_extents(arg_list[2])[x], [0, 1, 2, 3, 4, 5]))
-                CONTEXT.stroke()
-                self.width  = round(self.xa+self.xb,      2)
-                self.height = round(abs(self.ya+self.yb), 2)
+            _arg = '_' + arg
+            # arg_dict = {
+            #     'font_size': self._font_size,
+            #     'font_face': self._font_face,
+            #     'text':      self._text,
+            # }
+            setattr(self, _arg, val)
+
+            self._font_new += 1
         return prop
 
     for key in ['text', 'font_size', 'font_face']:
@@ -522,6 +525,7 @@ class node:
         # arg: 'width', 'height'
         @property
         def prop(self):
+            self.updateWH()
             wh_arg = {
                 'width':        self.wh[0],
                 'height':       self.wh[1],
@@ -530,7 +534,7 @@ class node:
         @prop.setter
         def prop(self, val):
             val_dict = {
-                'width':    [val,           self.wh[1]],
+                'width':    [val,          self.wh[1]],
                 'height':   [self.wh[0],   val],
             }
             self.wh = val_dict[arg]
@@ -636,7 +640,6 @@ class node:
             # change nsew and set c (-> xy)
             # val: 2-int list, (nsew)
             # same to xy setter
-
             nsew_dict = nsewDict(*self.wh)
             asep_dict = asepDict(*self.asep)
             self.c = list(map(lambda a,b,c: a-b-c, val, nsew_dict[arg], asep_dict[arg]))
@@ -652,6 +655,7 @@ class node:
 
     def place(self):
         xy = [self.c[0]-self.width/2, self.c[1]+self.height/2]
+        # xy = [self.c[0], self.c[1]]
         CONTEXT.move_to(*xy)
 
     def write(self):
@@ -666,7 +670,7 @@ class node:
             CONTEXT.set_source_rgba(0, 0.5, 0, 1)
             CONTEXT.set_line_width(2)
             # nsew/tbrl
-            ssept, ssepb, ssepr, ssepl = list(map(lambda i: self.ssep[i], [0, 1, 2, 3]))
+            ssept, ssepb, ssepr, ssepl = self.ssep
             rectxy = [self.c[0]-ssepl-self.width/2, self.c[1]-self.height/2-ssept]
             rectwh = [self.width+ssepl+ssepr, self.height+ssept+ssepb]
             CONTEXT.rectangle(*rectxy, *rectwh)

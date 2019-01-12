@@ -1,7 +1,8 @@
 from tikzpy import *
 import tikzpy
+from random import randint
 
-initTikzpy('z_test_hello.pdf', width=600, height=400)
+initTikzpy('z_test_hello.pdf', width=1000, height=1000)
 # arc1 = arc(x=50, y=50, r=50)
 # arc2 = arc(x=150, y=90, beg=0.5*pi)
 # arc2.r, arc2.end = 60, 1.9 * pi
@@ -33,17 +34,26 @@ initTikzpy('z_test_hello.pdf', width=600, height=400)
 # circle(x=node3.l[0], y=node3.l[1], r=2)
 # print(type(circle(x=node3.b[0], y=node3.b[1], r=2)))
 
-# for j in range(0, 10):
 node_list = []
-NUM = 100
+NUM = 10000
 STEP = sqrt(NUM)
 for i in range(0, NUM):
     yyy = str(i)
-    cox = 50 + 4 *(i % STEP)
-    coy = 50 + 4 * int(i/STEP)
+    cox = 50 + 10 *(i % STEP) + randint(1,10)
+    coy = 50 + 10 * int(i/STEP) + randint(1,5)
     # node_list.append(node(font_size=10, text='', font_face='Source Han Sans HW SC', x=cox, y=coy, anchor='c', text_rgba=[0.5,0.0,0.0,1.0]))
     # node_list[i].anchor = 'n'
-    node_list.append(circle(c=[cox,coy], r=2))
+    # node_list.append(circle(c=[cox,coy], r=2))
+    # if cox == 100:
+    #     continue
+    # if coy == 200:
+    #     continue
+    # if cox == 300 and coy == 300:
+    #     continue
+    # if cox >= 400 or coy >= 400:
+    #     continue
+
+    node_list.append(node(text='你好', font_size=4, font_face='Arial Unicode MS',c=[cox,coy], is_stroke=True))
     # newPage()
 
 
