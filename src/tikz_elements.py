@@ -773,26 +773,15 @@ class node:
             # ptr = len(frag) - 1
             subfrag = frag
         else:
-            p_left = 0
-            p_righ = len(frag)
-            is_find = False
+            p_left, p_righ, p_mid = 0, len(frag), 1
             while p_left < p_righ:
                 p_mid = p_left + (p_righ - p_left)//2
                 if self.getTextWidth(frag[0:p_mid]) < maxwidth:
                     p_left = p_mid + 1
                 else:
                     p_righ = p_mid
-            subfrag = frag[0:max(1,p_mid)]
+            subfrag = frag[0:max(1,p_left-1)]
 
-            # Here can use binary search to optimize
-            # for i in range(1, len(frag)+1):
-            #     subfrag = frag[0:i]
-            #     if self.getTextWidth(subfrag) >= maxwidth:
-            #         if len(subfrag) == 1:
-            #             pass
-            #         else:
-            #             subfrag = subfrag[:-1]
-            #         break
         print(self.getTextWidth(subfrag))
         return subfrag
 
