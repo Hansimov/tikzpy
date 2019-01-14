@@ -9,9 +9,16 @@ initTikzpy('z_test_hello.pdf', width=1000, height=1000)
 # circ1 = circle(x=250, y=90, r=30)
 # circ2 = circle(x=350, y=90, r=1)
 
-xxx = u'π * 123 + 45678 β ∬ Σ 天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。 寒来暑往，秋收冬藏。闰余成岁，律吕调阳。云腾致雨，露结为霜。\u27bd\n'
-node1 = node(xy=[300,200], font_size=5,maxwidth=300, text=xxx, anchor='l')
-node1.splitText()
+# xxx = u'π * 123 + 45678 β ∬ Σ \n天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。\n寒来暑往，秋收冬藏。闰余成岁，律吕调阳。\n云腾致雨，露结为霜。金生丽水，玉出昆冈。\n剑号巨阙，珠称夜光。果珍李柰，菜重芥姜。\n\u27bd\n'
+# node1 = node(xy=[300, 200], font_size=10, maxwidth=805, text=xxx, linespace=20, anchor='l')
+circle(c=[300,200])
+box1 = box(text='123414', xy=[300, 200], font_size=10,  anchor='bl')
+# box1.anchor = 'bl'
+# box1.updateWH()
+# box1.anchor = 'bl'
+# print(box1.wh, box1.xy, box1.c)
+# print(box1.width)
+# print(box1.text)
 # node2 = node(x=10, y=225, font_size=20, text=xxx, font_face='Consolas-With-Yahei')
 # node3 = node(anchor='l', x=20, y=250, font_size=20, text=xxx, font_face='Source Han Sans HW SC', text_rgba=[0.5,0.0,0.0,1.0])
 # node3.font_face = 'Arial Unicode MS'

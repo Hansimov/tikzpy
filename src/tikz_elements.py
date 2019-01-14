@@ -445,14 +445,14 @@ class box:
             '_text':        '',
             '_font_size':   20,
             '_font_face':   'Arial Unicode MS',
-            '_font_old':    -1,
+            '_font_old':    0,
             '_font_new':    0,
-            'wh':           [0, 0],
             'text_rgba':    [0.0, 0.0, 0.5, 1.0],
         # position
             '_anchor':      'c',
             '_xy':          [0, 0],
             'c':            [0, 0],
+            '_wh':           [0, 0],
             'ssep':         [0,0,0,0], # stroke sep: nsew/tbrl
             'asep':         [0,0,0,0], # anchor sep: nsew/tbrl
         # fill
@@ -480,16 +480,18 @@ class box:
     def updateWH(self):
         if self._font_old == self._font_new:
             pass
-        elif self.text == '':
-            self.wh = [0,0]
+        # elif self.text == '':
+        #     self._wh = [0, 0]
         else:
             self.setPaintFont()
             # Note: text_extents() takes most exec time of the whole program
             xb, yb, ww, hh, xa, ya = CONTEXT.text_extents(self.text)
             CONTEXT.stroke()
-            self.wh[0] = round(xa+xb,      2)
-            self.wh[1] = round(abs(ya+yb), 2)
+            self._wh[0] = round(xa+xb,      2)
+            self._wh[1] = round(abs(ya+yb), 2)
             self._font_old = self._font_new
+            # This line is to update c
+            self.anchor = self.anchor
 
     def decorateText(arg):
         # arg: 'text', 'font_size', 'font_face'
@@ -515,22 +517,26 @@ class box:
         def prop(self):
             self.updateWH()
             wh_arg = {
-                'width':        self.wh[0],
-                'height':       self.wh[1],
+                'width':        self._wh[0],
+                'height':       self._wh[1],
+                'wh':           self._wh,
             }
             return wh_arg[arg]
         @prop.setter
         def prop(self, val):
-            val_dict = {
-                'width':    [val,          self.wh[1]],
-                'height':   [self.wh[0],   val],
-            }
-            self.wh = val_dict[arg]
-            # This line is to update c
-            self.anchor = self.anchor
+            # width and height should be read-only
+            pass
+            # val_dict = {
+            #     'width':    [val,          self._wh[1]],
+            #     'height':   [self._wh[0],   val],
+            #     'wh':       val,
+            # }
+            # self._wh = val_dict[arg]
+            # # This line is to update c
+            # self.anchor = self.anchor
         return prop
 
-    for key in ['width', 'height']:
+    for key in ['width', 'height', 'wh']:
         exec(f"{key} = decorateWH('{key}')")
 
     def decorateASEP(arg):
@@ -602,14 +608,13 @@ class box:
             # change anchor (fix xy) and set c (-> nsew)
             # val: 1or2-char str, (anchor)
             self._anchor = val
-
             if not val in nsew_list:
                 val = nsew_list[tbrl_list.index(val)]
 
             nsew_dict = nsewDict(*self.wh)
             asep_dict = asepDict(*self.asep)
-
             self.c = list(map(lambda a,b,c: a-b-c, self._xy, nsew_dict[val], asep_dict[val]))
+
         return prop
 
     anchor = decorateAnchor()
@@ -640,8 +645,8 @@ class box:
         exec(f"{nsew_key} = decorateNSEW('{nsew_key}')")
         exec(f"{tbrl_key} = decorateNSEW('{nsew_key}')")
 
-
     def place(self):
+        self.updateWH()
         xy = [self.c[0]-self.width/2, self.c[1]+self.height/2]
         # xy = [self.c[0], self.c[1]]
         CONTEXT.move_to(*xy)
@@ -705,8 +710,10 @@ class node:
         # text
             'is_write':     True,
             '_text':        '',
-            'font_size':   20,
-            'font_face':   'Arial Unicode MS',
+            'lines':        [],
+            'boxes':        [],
+            'font_size':    20,
+            'font_face':    'Arial Unicode MS',
             # '_font_old':    -1,
             # '_font_new':    0,
             # 'twh':          [0,0],
@@ -714,6 +721,7 @@ class node:
             'maxwidth':        400,
             'minwidth':        0,
             'text_rgba':    [0.0, 0.0, 0.5, 1.0],
+            'linespace':    20,
         # position
             '_anchor':      'c',
             '_xy':          [0, 0],
@@ -737,6 +745,7 @@ class node:
     def initFuncs(self):
         if self.is_append:
             ELEMENTS.append(self)
+        # self.linespace = self.font_size
 
     # def decorateText(arg):
     #     # arg: 'text', 'font_size', 'font_face'
@@ -764,11 +773,11 @@ class node:
         xb, yb, ww, hh, xa, ya = CONTEXT.text_extents(text)
         # CONTEXT.stroke()
         width  = round(xa+xb,      2)
+        # width  = round(ww,      2)
         height = round(abs(ya+yb), 2)
         return width
 
     def getLongestSubfrag(self, frag, maxwidth):
-        self.setPaintFont()
         if self.getTextWidth(frag) <= maxwidth:
             # ptr = len(frag) - 1
             subfrag = frag
@@ -776,37 +785,47 @@ class node:
             p_left, p_righ, p_mid = 0, len(frag), 1
             while p_left < p_righ:
                 p_mid = p_left + (p_righ - p_left)//2
-                if self.getTextWidth(frag[0:p_mid]) < maxwidth:
+                if self.getTextWidth(frag[0:p_mid]) <= maxwidth:
                     p_left = p_mid + 1
                 else:
                     p_righ = p_mid
             subfrag = frag[0:max(1,p_left-1)]
-
-        print(self.getTextWidth(subfrag))
+        # print(self.getTextWidth(subfrag))
         return subfrag
 
+    def splitFrag(self, frag, maxwidth):
+        subfrags = []
+        self.setPaintFont()
+        while frag != '':
+            subfrag = self.getLongestSubfrag(frag, maxwidth)
+            frag = frag[len(subfrag):]
+            subfrags.append(subfrag)
+            print(subfrag)
+        return subfrags
+
     def splitText(self):
-        self.text 
-        # idx_list = [i for i,char in enumerate(self.text) if char=='\n']
         fragments = ['']
-        # for i in range(len(idx)-1):
-        #     idx1,idx2 = idx_list[i], idx_list[i+1]
-        #     fragments.append(self.text[])
         for idx,char in enumerate(self.text):
             if char=='\n':
                 fragments.append('')
             else:
                 fragments[-1] += char
-        print(fragments)
-        # lines = []
-        print(self.getLongestSubfrag(fragments[0], self.maxwidth))
+        for frag in fragments:
+            subfrags = self.splitFrag(frag, self.maxwidth)
+            self.lines += subfrags
 
-
+    def createBoxes(self):
+        self.splitText()
+        for i in range(len(self.lines)):
+            line = self.lines[i]
+            x = self.xy[0]
+            y = self.xy[1] + i * 1.5 * self.linespace
+            self.boxes.append(box(xy=[x,y], anchor=self.anchor, text=line, font_size=self.font_size))
 
     def paint(self):
-        pass
-        # for node in self.node_list:
-        #     node.paint()
+        self.createBoxes()
+        for box in self.boxes:
+            box.paint()
 
 
 # ============================================= #
