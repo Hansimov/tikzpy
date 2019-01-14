@@ -422,8 +422,9 @@ def asepDict(asepn, aseps, asepe, asepw):
     return asep_dict
 
 
+
 # ============================================= #
-class node:
+class box:
     # Text in PyCairo - ZetCode
     #   http://zetcode.com/gfx/pycairo/text/
     def __init__(self, **kwargs):
@@ -452,8 +453,8 @@ class node:
             '_anchor':      'c',
             '_xy':          [0, 0],
             'c':            [0, 0],
-            'ssep':         [10,10,10,10], # stroke sep: nsew/tbrl
-            'asep':         [25,25,25,25], # anchor sep: nsew/tbrl
+            'ssep':         [0,0,0,0], # stroke sep: nsew/tbrl
+            'asep':         [0,0,0,0], # anchor sep: nsew/tbrl
         # fill
             'is_fill':     False,
             'fill_rgba':   [0.5, 0.0, 0.0, 1.0],
@@ -489,32 +490,19 @@ class node:
             self.wh[0] = round(xa+xb,      2)
             self.wh[1] = round(abs(ya+yb), 2)
             self._font_old = self._font_new
-            # print(self._font_old, self._font_new)
 
     def decorateText(arg):
         # arg: 'text', 'font_size', 'font_face'
         @property
         def prop(self):
-            # get infomation of text
-            arg_dict = {
-                'font_size': self._font_size,
-                'font_face': self._font_face,
-                'text':      self._text,
-            }
-            return arg_dict[arg]
+            # get infomation of font
+            _arg = '_' + arg
+            return getattr(self, _arg)
         @prop.setter
         def prop(self, val):
             # val: int (font_size) / str (font_face) / str (text)
-            # exec(f"self._{arg} = val")
-
             _arg = '_' + arg
-            # arg_dict = {
-            #     'font_size': self._font_size,
-            #     'font_face': self._font_face,
-            #     'text':      self._text,
-            # }
             setattr(self, _arg, val)
-
             self._font_new += 1
         return prop
 
@@ -701,6 +689,136 @@ class node:
         # See:
         #   https://pycairo.readthedocs.io/en/latest/reference/context.html#cairo.Context.stroke
         CONTEXT.restore()
+
+# ============================================= #
+
+class node:
+    def __init__(self, **kwargs):
+        importTikzInit()
+        self.initArgs(kwargs)
+        self.initFuncs()
+
+    def initArgs(self, kwargs):
+        default_args = {
+        # others
+            'is_append':    True,
+        # text
+            'is_write':     True,
+            '_text':        '',
+            'font_size':   20,
+            'font_face':   'Arial Unicode MS',
+            # '_font_old':    -1,
+            # '_font_new':    0,
+            # 'twh':          [0,0],
+            'wh':           [0, 0],
+            'maxwidth':        400,
+            'minwidth':        0,
+            'text_rgba':    [0.0, 0.0, 0.5, 1.0],
+        # position
+            '_anchor':      'c',
+            '_xy':          [0, 0],
+            'c':            [0, 0],
+            'ssep':         [0,0,0,0], # stroke sep: nsew/tbrl
+            'asep':         [0,0,0,0], # anchor sep: nsew/tbrl
+        # fill
+            'is_fill':     False,
+            'fill_rgba':   [0.5, 0.0, 0.0, 1.0],
+        # stroke
+            'is_stroke':   False,
+            'stroke_rgba': [0.0, 0.5, 0.0, 1.0],
+        }
+
+        for key, val in default_args.items():
+            setattr(self, key, val)
+
+        for key, val in kwargs.items():
+            setattr(self, key, val)
+
+    def initFuncs(self):
+        if self.is_append:
+            ELEMENTS.append(self)
+
+    # def decorateText(arg):
+    #     # arg: 'text', 'font_size', 'font_face'
+    #     @property
+    #     def prop(self):
+    #         # get infomation of font
+    #         _arg = '_' + arg
+    #         return getattr(self, _arg)
+    #     @prop.setter
+    #     def prop(self, val):
+    #         # val: int (font_size) / str (font_face) / str (text)
+    #         _arg = '_' + arg
+    #         setattr(self, _arg, val)
+    #         self._font_new += 1
+    #     return prop
+
+    # for key in ['text', 'font_size', 'font_face']:
+    #     exec(f"{key} = decorateText('{key}')")
+
+    def setPaintFont(self):
+        CONTEXT.set_font_size(self.font_size)
+        CONTEXT.select_font_face(self.font_face, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+
+    def getTextWidth(self, text):
+        xb, yb, ww, hh, xa, ya = CONTEXT.text_extents(text)
+        # CONTEXT.stroke()
+        width  = round(xa+xb,      2)
+        height = round(abs(ya+yb), 2)
+        return width
+
+    def getLongestSubfrag(self, frag, maxwidth):
+        self.setPaintFont()
+        if self.getTextWidth(frag) <= maxwidth:
+            # ptr = len(frag) - 1
+            subfrag = frag
+        else:
+            p_left = 0
+            p_righ = len(frag)
+            is_find = False
+            while p_left < p_righ:
+                p_mid = p_left + (p_righ - p_left)//2
+                if self.getTextWidth(frag[0:p_mid]) < maxwidth:
+                    p_left = p_mid + 1
+                else:
+                    p_righ = p_mid
+            subfrag = frag[0:max(1,p_mid)]
+
+            # Here can use binary search to optimize
+            # for i in range(1, len(frag)+1):
+            #     subfrag = frag[0:i]
+            #     if self.getTextWidth(subfrag) >= maxwidth:
+            #         if len(subfrag) == 1:
+            #             pass
+            #         else:
+            #             subfrag = subfrag[:-1]
+            #         break
+        print(self.getTextWidth(subfrag))
+        return subfrag
+
+    def splitText(self):
+        self.text 
+        # idx_list = [i for i,char in enumerate(self.text) if char=='\n']
+        fragments = ['']
+        # for i in range(len(idx)-1):
+        #     idx1,idx2 = idx_list[i], idx_list[i+1]
+        #     fragments.append(self.text[])
+        for idx,char in enumerate(self.text):
+            if char=='\n':
+                fragments.append('')
+            else:
+                fragments[-1] += char
+        print(fragments)
+        # lines = []
+        print(self.getLongestSubfrag(fragments[0], self.maxwidth))
+
+
+
+    def paint(self):
+        pass
+        # for node in self.node_list:
+        #     node.paint()
+
 
 # ============================================= #
 class newPage:

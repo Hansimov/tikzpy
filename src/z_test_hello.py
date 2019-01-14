@@ -9,8 +9,9 @@ initTikzpy('z_test_hello.pdf', width=1000, height=1000)
 # circ1 = circle(x=250, y=90, r=30)
 # circ2 = circle(x=350, y=90, r=1)
 
-# xxx = u'π * 123 + 456 β ∬ Σ 天地玄黄，宇宙洪荒 \u27bd'
-# node1 = node(x=00, y=200, font_size=20, text=xxx, anchor='l')
+xxx = u'π * 123 + 45678 β ∬ Σ 天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。 寒来暑往，秋收冬藏。闰余成岁，律吕调阳。\u27bd\n'
+node1 = node(xy=[300,200], font_size=5,maxwidth=100, text=xxx, anchor='l')
+node1.splitText()
 # node2 = node(x=10, y=225, font_size=20, text=xxx, font_face='Consolas-With-Yahei')
 # node3 = node(anchor='l', x=20, y=250, font_size=20, text=xxx, font_face='Source Han Sans HW SC', text_rgba=[0.5,0.0,0.0,1.0])
 # node3.font_face = 'Arial Unicode MS'
@@ -34,13 +35,13 @@ initTikzpy('z_test_hello.pdf', width=1000, height=1000)
 # circle(x=node3.l[0], y=node3.l[1], r=2)
 # print(type(circle(x=node3.b[0], y=node3.b[1], r=2)))
 
-node_list = []
-NUM = 10000
-STEP = sqrt(NUM)
-for i in range(0, NUM):
-    yyy = str(i)
-    cox = 50 + 10 *(i % STEP) + randint(1,10)
-    coy = 50 + 10 * int(i/STEP) + randint(1,5)
+# node_list = []
+# NUM = 1000
+# STEP = sqrt(NUM)
+# for i in range(0, NUM):
+#     yyy = str(i)
+#     cox = 50 + 10 *(i % STEP) + randint(1,10)
+#     coy = 50 + 10 * int(i/STEP) + randint(1,5)
     # node_list.append(node(font_size=10, text='', font_face='Source Han Sans HW SC', x=cox, y=coy, anchor='c', text_rgba=[0.5,0.0,0.0,1.0]))
     # node_list[i].anchor = 'n'
     # node_list.append(circle(c=[cox,coy], r=2))
@@ -53,7 +54,7 @@ for i in range(0, NUM):
     # if cox >= 400 or coy >= 400:
     #     continue
 
-    node_list.append(node(text='你好', font_size=4, font_face='Arial Unicode MS',c=[cox,coy], is_stroke=True))
+    # node_list.append(node(text='你好', font_size=4, font_face='Arial Unicode MS',c=[cox,coy], is_stroke=True))
     # newPage()
 
 
