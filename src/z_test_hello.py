@@ -9,11 +9,19 @@ initTikzpy('z_test_hello.pdf', width=1000, height=1000)
 # circ1 = circle(x=250, y=90, r=30)
 # circ2 = circle(x=350, y=90, r=1)
 
-# xxx = u'π * 123 + 45678 β ∬ Σ \n天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。\n寒来暑往，秋收冬藏。闰余成岁，律吕调阳。\n云腾致雨，露结为霜。金生丽水，玉出昆冈。\n剑号巨阙，珠称夜光。果珍李柰，菜重芥姜。\n\u27bd\n'
-# node1 = node(xy=[300, 200], font_size=10, maxwidth=805, text=xxx, linespace=20, anchor='l')
-circle(c=[300,200])
-box1 = box(text='123414', xy=[300, 200], font_size=10,  anchor='bl')
-# box1.anchor = 'bl'
+xxx = u'π * 123 + 45678 β ∬ Σ \n天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。\n寒来暑往，秋收冬藏。闰余成岁，律吕调阳。\n云腾致雨，露结为霜。金生丽水，玉出昆冈。\n剑号巨阙，珠称夜光。果珍李柰，菜重芥姜。\n\u27bd\n'
+box1 = node(xy=[300, 200], font_size=10, max_width=805, min_width=300, text=xxx, linespace=5, anchor='c', is_stroke=True)
+# print(node1.c)
+# box1 = node(xy=[300, 150], font_size=10, anchor='l', is_stroke=True, font_face='CMU Typewritter Text',  text='π * 123 + 45678 β ∬ Σ ')
+# print(box1.c, box1.l)
+# box1.c = [200,100]
+circle(c=getattr(box1,box1.anchor))
+print(box1.c, box1.l)
+print(box1.text)
+
+# circle(c=[300,200])
+# node1.calcWH()
+# box1 = box(anchor='bl', text='123414', xy=[300, 200], font_size=10, )
 # box1.updateWH()
 # box1.anchor = 'bl'
 # print(box1.wh, box1.xy, box1.c)
@@ -42,8 +50,8 @@ box1 = box(text='123414', xy=[300, 200], font_size=10,  anchor='bl')
 # circle(x=node3.l[0], y=node3.l[1], r=2)
 # print(type(circle(x=node3.b[0], y=node3.b[1], r=2)))
 
-# node_list = []
-# NUM = 1000
+# box_list = []
+# NUM = 1
 # STEP = sqrt(NUM)
 # for i in range(0, NUM):
 #     yyy = str(i)
@@ -52,16 +60,7 @@ box1 = box(text='123414', xy=[300, 200], font_size=10,  anchor='bl')
     # node_list.append(node(font_size=10, text='', font_face='Source Han Sans HW SC', x=cox, y=coy, anchor='c', text_rgba=[0.5,0.0,0.0,1.0]))
     # node_list[i].anchor = 'n'
     # node_list.append(circle(c=[cox,coy], r=2))
-    # if cox == 100:
-    #     continue
-    # if coy == 200:
-    #     continue
-    # if cox == 300 and coy == 300:
-    #     continue
-    # if cox >= 400 or coy >= 400:
-    #     continue
-
-    # node_list.append(node(text='你好', font_size=4, font_face='Arial Unicode MS',c=[cox,coy], is_stroke=True))
+    # box_list.append(box(text='你好', font_size=4, font_face='Arial Unicode MS', xy=[cox,coy], is_stroke=False))
     # newPage()
 
 

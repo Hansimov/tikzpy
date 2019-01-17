@@ -451,8 +451,8 @@ class box:
         # position
             '_anchor':      'c',
             '_xy':          [0, 0],
-            'c':            [0, 0],
-            '_wh':           [0, 0],
+            '_c':           [0, 0],
+            '_wh':          [0, 0],
             'ssep':         [0,0,0,0], # stroke sep: nsew/tbrl
             'asep':         [0,0,0,0], # anchor sep: nsew/tbrl
         # fill
@@ -489,11 +489,13 @@ class box:
             CONTEXT.stroke()
             self._wh[0] = round(xa+xb,      2)
             self._wh[1] = round(abs(ya+yb), 2)
+            # self._wh[1] = round(hh, 2)
             self._font_old = self._font_new
             # This line is to update c
-            self.anchor = self.anchor
+            # self.anchor = self.anchor
+            self.updateC(self._anchor)
 
-    def decorateText(arg):
+    def propText(arg):
         # arg: 'text', 'font_size', 'font_face'
         @property
         def prop(self):
@@ -509,9 +511,9 @@ class box:
         return prop
 
     for key in ['text', 'font_size', 'font_face']:
-        exec(f"{key} = decorateText('{key}')")
+        exec(f"{key} = propText('{key}')")
 
-    def decorateWH(arg):
+    def propWH(arg):
         # arg: 'width', 'height'
         @property
         def prop(self):
@@ -526,20 +528,12 @@ class box:
         def prop(self, val):
             # width and height should be read-only
             pass
-            # val_dict = {
-            #     'width':    [val,          self._wh[1]],
-            #     'height':   [self._wh[0],   val],
-            #     'wh':       val,
-            # }
-            # self._wh = val_dict[arg]
-            # # This line is to update c
-            # self.anchor = self.anchor
         return prop
 
     for key in ['width', 'height', 'wh']:
-        exec(f"{key} = decorateWH('{key}')")
+        exec(f"{key} = propWH('{key}')")
 
-    def decorateASEP(arg):
+    def propASEP(arg):
         # arg: 'asep(n|s|e|w)'
         @property
         def prop(self):
@@ -554,10 +548,10 @@ class box:
     for i in range(len(nsew_list[1:5])):
         asep_nsew_key = 'asep' + nsew_list[1:5][i]
         asep_tbrl_key = 'asep' + tbrl_list[1:5][i]
-        exec(f"{asep_nsew_key} = decorateASEP('{asep_nsew_key}')")
-        exec(f"{asep_tbrl_key} = decorateASEP('{asep_nsew_key}')")
+        exec(f"{asep_nsew_key} = propASEP('{asep_nsew_key}')")
+        exec(f"{asep_tbrl_key} = propASEP('{asep_nsew_key}')")
 
-    def decorateXY(arg):
+    def propXY(arg):
         # arg: 'x', 'y', 'xy'
         @property
         def prop(self):
@@ -587,18 +581,26 @@ class box:
             if not anchor in nsew_list:
                 anchor = nsew_list[tbrl_list.index(anchor)]
 
-            self.c = list(map(lambda a,b,c: a-b-c, val_list, nsew_dict[anchor], asep_dict[anchor]))
+            self._c = list(map(lambda a,b,c: a-b-c, val_list, nsew_dict[anchor], asep_dict[anchor]))
         return prop
 
     for key in ['x', 'y', 'xy']:
-        exec(f"{key} = decorateXY('{key}')")
+        exec(f"{key} = propXY('{key}')")
 
     # Note: 
     # 'anchor' has two meanings here:
     #   1. (1-char str) value of 'anchor' attribute/property
     #   2. (2-int list) collective name of 'n','s','e','w', ... attribute/property
 
-    def decorateAnchor():
+    def updateC(self, val):
+        if not val in nsew_list:
+            val = nsew_list[tbrl_list.index(val)]
+        # use _wh instead of wh to avoid recursion
+        nsew_dict = nsewDict(*self._wh)
+        asep_dict = asepDict(*self.asep)
+        self._c = list(map(lambda a,b,c: a-b-c, self._xy, nsew_dict[val], asep_dict[val]))
+
+    def propAnchor():
         @property
         def prop(self):
             # get anchor from _anchor
@@ -608,25 +610,19 @@ class box:
             # change anchor (fix xy) and set c (-> nsew)
             # val: 1or2-char str, (anchor)
             self._anchor = val
-            if not val in nsew_list:
-                val = nsew_list[tbrl_list.index(val)]
-
-            nsew_dict = nsewDict(*self.wh)
-            asep_dict = asepDict(*self.asep)
-            self.c = list(map(lambda a,b,c: a-b-c, self._xy, nsew_dict[val], asep_dict[val]))
-
+            self.updateC(val)
         return prop
 
-    anchor = decorateAnchor()
+    anchor = propAnchor()
 
-    def decorateNSEW(arg):
-        # arg: 'n', 's, 'e', 'w', '(n|s)(e|w)''
+    def propNSEW(arg):
+        # arg: 'c', 'n', 's, 'e', 'w', '(n|s)(e|w)''
         @property
         def prop(self):
             # get nsew(=arg) from c and arg
             nsew_dict = nsewDict(*self.wh)
             asep_dict = asepDict(*self.asep)
-            nsew_val = list(map(lambda a,b,c: a+b+c, self.c, nsew_dict[arg], asep_dict[arg]))
+            nsew_val = list(map(lambda a,b,c: a+b+c, self._c, nsew_dict[arg], asep_dict[arg]))
             return nsew_val
         @prop.setter
         def prop(self, val):
@@ -635,20 +631,18 @@ class box:
             # same to xy setter
             nsew_dict = nsewDict(*self.wh)
             asep_dict = asepDict(*self.asep)
-            self.c = list(map(lambda a,b,c: a-b-c, val, nsew_dict[arg], asep_dict[arg]))
+            self._c = list(map(lambda a,b,c: a-b-c, val, nsew_dict[arg], asep_dict[arg]))
         return prop
 
-    for i in range(len(nsew_list[1:])):
-        # Do not decorate 'c'
-        nsew_key = nsew_list[1:][i]
-        tbrl_key = tbrl_list[1:][i]
-        exec(f"{nsew_key} = decorateNSEW('{nsew_key}')")
-        exec(f"{tbrl_key} = decorateNSEW('{nsew_key}')")
+    for i in range(len(nsew_list)):
+        nsew_key = nsew_list[i]
+        tbrl_key = tbrl_list[i]
+        exec(f"{nsew_key} = propNSEW('{nsew_key}')")
+        exec(f"{tbrl_key} = propNSEW('{nsew_key}')")
 
     def place(self):
         self.updateWH()
-        xy = [self.c[0]-self.width/2, self.c[1]+self.height/2]
-        # xy = [self.c[0], self.c[1]]
+        xy = [self._c[0]-self.width/2, self._c[1]+self.height/2]
         CONTEXT.move_to(*xy)
 
     def write(self):
@@ -697,7 +691,7 @@ class box:
 
 # ============================================= #
 
-class node:
+class node(box):
     def __init__(self, **kwargs):
         importTikzInit()
         self.initArgs(kwargs)
@@ -709,23 +703,23 @@ class node:
             'is_append':    True,
         # text
             'is_write':     True,
-            '_text':        '',
-            'lines':        [],
-            'boxes':        [],
+            'text':        '',
             'font_size':    20,
             'font_face':    'Arial Unicode MS',
-            # '_font_old':    -1,
-            # '_font_new':    0,
+            'boxes':        [],
+            'lines':        [],
             # 'twh':          [0,0],
-            'wh':           [0, 0],
-            'maxwidth':        400,
-            'minwidth':        0,
+            '_wh':           [0, 0],
+            'max_width':        400,
+            'min_width':        0,
+            'text_width':    0,
+            'text_height':   0,
             'text_rgba':    [0.0, 0.0, 0.5, 1.0],
-            'linespace':    20,
+            'line_space':    20,
         # position
             '_anchor':      'c',
             '_xy':          [0, 0],
-            'c':            [0, 0],
+            '_c':            [0, 0],
             'ssep':         [0,0,0,0], # stroke sep: nsew/tbrl
             'asep':         [0,0,0,0], # anchor sep: nsew/tbrl
         # fill
@@ -745,25 +739,6 @@ class node:
     def initFuncs(self):
         if self.is_append:
             ELEMENTS.append(self)
-        # self.linespace = self.font_size
-
-    # def decorateText(arg):
-    #     # arg: 'text', 'font_size', 'font_face'
-    #     @property
-    #     def prop(self):
-    #         # get infomation of font
-    #         _arg = '_' + arg
-    #         return getattr(self, _arg)
-    #     @prop.setter
-    #     def prop(self, val):
-    #         # val: int (font_size) / str (font_face) / str (text)
-    #         _arg = '_' + arg
-    #         setattr(self, _arg, val)
-    #         self._font_new += 1
-    #     return prop
-
-    # for key in ['text', 'font_size', 'font_face']:
-    #     exec(f"{key} = decorateText('{key}')")
 
     def setPaintFont(self):
         CONTEXT.set_font_size(self.font_size)
@@ -772,20 +747,20 @@ class node:
     def getTextWidth(self, text):
         xb, yb, ww, hh, xa, ya = CONTEXT.text_extents(text)
         # CONTEXT.stroke()
-        width  = round(xa+xb,      2)
+        text_width  = round(xa+xb,      2)
         # width  = round(ww,      2)
-        height = round(abs(ya+yb), 2)
-        return width
+        # height = round(abs(ya+yb), 2)
+        return text_width
 
-    def getLongestSubfrag(self, frag, maxwidth):
-        if self.getTextWidth(frag) <= maxwidth:
+    def getLongestSubfrag(self, frag, max_width):
+        if self.getTextWidth(frag) <= max_width:
             # ptr = len(frag) - 1
             subfrag = frag
         else:
             p_left, p_righ, p_mid = 0, len(frag), 1
             while p_left < p_righ:
                 p_mid = p_left + (p_righ - p_left)//2
-                if self.getTextWidth(frag[0:p_mid]) <= maxwidth:
+                if self.getTextWidth(frag[0:p_mid]) <= max_width:
                     p_left = p_mid + 1
                 else:
                     p_righ = p_mid
@@ -793,14 +768,14 @@ class node:
         # print(self.getTextWidth(subfrag))
         return subfrag
 
-    def splitFrag(self, frag, maxwidth):
+    def splitFrag(self, frag, max_width):
         subfrags = []
         self.setPaintFont()
         while frag != '':
-            subfrag = self.getLongestSubfrag(frag, maxwidth)
+            subfrag = self.getLongestSubfrag(frag, max_width)
             frag = frag[len(subfrag):]
             subfrags.append(subfrag)
-            print(subfrag)
+            # print(subfrag)
         return subfrags
 
     def splitText(self):
@@ -811,7 +786,7 @@ class node:
             else:
                 fragments[-1] += char
         for frag in fragments:
-            subfrags = self.splitFrag(frag, self.maxwidth)
+            subfrags = self.splitFrag(frag, self.max_width)
             self.lines += subfrags
 
     def createBoxes(self):
@@ -819,13 +794,48 @@ class node:
         for i in range(len(self.lines)):
             line = self.lines[i]
             x = self.xy[0]
-            y = self.xy[1] + i * 1.5 * self.linespace
-            self.boxes.append(box(xy=[x,y], anchor=self.anchor, text=line, font_size=self.font_size))
+            y = self.xy[1] + i * (self.line_space + self.font_size)
+            self.boxes.append(box(xy=[x,y], text=line, font_size=self.font_size,font_face=self.font_face))
+        # for i in range(len(self.boxes)-1):
+        #     box1, box2 = self.boxes[i], self.boxes[i+1]
+        #     box2.y = box1.y + self.font_size + self.line_space
+    # def calcTextWH(self):
+    #     self.createBoxes()
+        text_width = 0
+        for boxi in self.boxes:
+            if boxi.width >= text_width:
+                text_width = boxi.width
+        self.text_width = text_width
+        self.text_height = len(self.boxes) * (self.font_size+self.line_space) - self.line_space
 
-    def paint(self):
-        self.createBoxes()
+    def updateWH(self):
+        if self.boxes == []:
+            self.createBoxes()
+        self._wh[0] = max(self.text_width, self.min_width)
+        self._wh[1] = self.text_height
+        self.updateC(self._anchor)
+
+    # To override this in box class
+    def propText(arg):
+        pass
+    for key in ['text', 'font_size', 'font_face']:
+        exec(f"{key} = propText('{key}')")
+
+    def write(self):
+        if self.boxes == []:
+            self.createBoxes()
         for box in self.boxes:
             box.paint()
+
+    def fill(self):
+        pass
+
+    def paint(self):
+        CONTEXT.save()
+        self.write()
+        self.stroke()
+        self.fill()
+        CONTEXT.stroke()
 
 
 # ============================================= #
