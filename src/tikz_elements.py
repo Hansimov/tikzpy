@@ -116,8 +116,8 @@ class circle:
         # others
             'is_append':    True,
         # position
-            'c':        [0, 0],
-            'r':        3,
+            'xy':           [0, 0],
+            'r':            3,
         # stroke
             'is_stroke':    True,
             'stroke_rgba':  [0.0, 0.5, 1.0, 1.0],
@@ -136,13 +136,25 @@ class circle:
         if self.is_append:
             ELEMENTS.append(self)
 
+    def stroke(self):
+        if self.is_stroke:
+            CONTEXT.arc(*self.xy, self.r, 0, 2.01*pi)
+            CONTEXT.set_source_rgba(*self.stroke_rgba)
+            if self.is_fill:
+                CONTEXT.stroke_preserve()
+            else:
+                CONTEXT.stroke()
+
+    def fill(self):
+        if self.is_fill:
+            CONTEXT.set_source_rgba(*self.fill_rgba)
+            CONTEXT.fill()
+
     def paint(self):
         CONTEXT.save()
-        CONTEXT.arc(*self.c, self.r, 0, 2.01*pi)
-        # CONTEXT.set_source_rgba(*self.stroke_rgba)
-        # CONTEXT.stroke_preserve()
-        CONTEXT.set_source_rgba(*self.fill_rgba)
-        CONTEXT.fill()
+        self.stroke()
+        self.fill()
+        CONTEXT.stroke()
         CONTEXT.restore()
 
 
@@ -827,8 +839,8 @@ class node(box):
         for box in self.boxes:
             box.paint()
 
-    def fill(self):
-        pass
+    # def fill(self):
+    #     pass
 
     def paint(self):
         CONTEXT.save()

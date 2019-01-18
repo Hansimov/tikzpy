@@ -1,8 +1,8 @@
 from tikzpy import *
-import tikzpy
+# import tikzpy
 from random import randint
 
-initTikzpy('z_test_hello.pdf', width=1000, height=1000)
+initTikzpy('z_test_hello.pdf', width=1280, height=720)
 # arc1 = arc(x=50, y=50, r=50)
 # arc2 = arc(x=150, y=90, beg=0.5*pi)
 # arc2.r, arc2.end = 60, 1.9 * pi
@@ -10,14 +10,16 @@ initTikzpy('z_test_hello.pdf', width=1000, height=1000)
 # circ2 = circle(x=350, y=90, r=1)
 
 xxx = u'π * 123 + 45678 β ∬ Σ \n天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。\n寒来暑往，秋收冬藏。闰余成岁，律吕调阳。\n云腾致雨，露结为霜。金生丽水，玉出昆冈。\n剑号巨阙，珠称夜光。果珍李柰，菜重芥姜。\n\u27bd\n'
-box1 = node(xy=[300, 200], font_size=10, max_width=805, min_width=300, text=xxx, linespace=5, anchor='c', is_stroke=True)
+box1 = node(xy=[250, 200], font_size=20, max_width=805, min_width=300, text=xxx, linespace=5, anchor='c', is_stroke=True,is_fill=False)
 # print(node1.c)
 # box1 = node(xy=[300, 150], font_size=10, anchor='l', is_stroke=True, font_face='CMU Typewritter Text',  text='π * 123 + 45678 β ∬ Σ ')
 # print(box1.c, box1.l)
 # box1.c = [200,100]
 circle(c=getattr(box1,box1.anchor))
 print(box1.c, box1.l)
-print(box1.text)
+print(box1.wh)
+box1.se = [100,100]
+print(box1.c, box1.l)
 
 # circle(c=[300,200])
 # node1.calcWH()
