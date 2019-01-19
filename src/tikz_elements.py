@@ -433,8 +433,6 @@ def asepDict(asepn, aseps, asepe, asepw):
     }
     return asep_dict
 
-
-
 # ============================================= #
 class box:
     # Text in PyCairo - ZetCode
@@ -715,11 +713,15 @@ class node(box):
             'is_append':    True,
         # text
             'is_write':     True,
-            'text':        '',
-            'font_size':    20,
-            'font_face':    'Arial Unicode MS',
+            '_text':        '',
+
+            '_font_size':    20,
+            '_font_face':    'Arial Unicode MS',
+            'align':        'l',
             'boxes':        [],
             'lines':        [],
+            '_font_old':    0,
+            '_font_new':    0,
             # 'twh':          [0,0],
             '_wh':           [0, 0],
             'max_width':        400,
@@ -732,7 +734,7 @@ class node(box):
             '_anchor':      'c',
             '_xy':          [0, 0],
             '_c':            [0, 0],
-            'ssep':         [0,0,0,0], # stroke sep: nsew/tbrl
+            'ssep':         [5,5,5,5], # stroke sep: nsew/tbrl
             'asep':         [0,0,0,0], # anchor sep: nsew/tbrl
         # fill
             'is_fill':     False,
@@ -805,14 +807,10 @@ class node(box):
         self.splitText()
         for i in range(len(self.lines)):
             line = self.lines[i]
-            x = self.xy[0]
-            y = self.xy[1] + i * (self.line_space + self.font_size)
-            self.boxes.append(box(xy=[x,y], text=line, font_size=self.font_size,font_face=self.font_face))
-        # for i in range(len(self.boxes)-1):
-        #     box1, box2 = self.boxes[i], self.boxes[i+1]
-        #     box2.y = box1.y + self.font_size + self.line_space
-    # def calcTextWH(self):
-    #     self.createBoxes()
+            # x = self.xy[0]
+            # y = self.xy[1] + i * (self.line_space + self.font_size)
+            self.boxes.append(box(text=line, font_size=self.font_size,font_face=self.font_face))
+
         text_width = 0
         for boxi in self.boxes:
             if boxi.width >= text_width:
@@ -821,23 +819,41 @@ class node(box):
         self.text_height = len(self.boxes) * (self.font_size+self.line_space) - self.line_space
 
     def updateWH(self):
-        if self.boxes == []:
-            self.createBoxes()
-        self._wh[0] = max(self.text_width, self.min_width)
-        self._wh[1] = self.text_height
-        self.updateC(self._anchor)
+        if self._font_old == self._font_new:
+            pass
+        else:
+            if self.boxes == []:
+                self.createBoxes()
+            self._wh[0] = max(self.text_width, self.min_width)
+            self._wh[1] = self.text_height
+            self.updateC(self._anchor)
 
-    # To override this in box class
-    def propText(arg):
-        pass
-    for key in ['text', 'font_size', 'font_face']:
-        exec(f"{key} = propText('{key}')")
+    # # To override this in box class
+    # def propText(arg):
+    #     pass
+    # for key in ['text', 'font_size', 'font_face']:
+    #     exec(f"{key} = propText('{key}')")
+
+    def place(self):
+        self.updateWH()
+        xy = [self._c[0]-self.width/2, self._c[1]+self.height/2]
+        # print(self.c, self.t, self.text_height)
+        # print(self.font_size, self.line_space)
+
+        boxi_x = getattr(self,self.align)[0]
+        boxi_anchor = 't' + (self.align, '')[self.align=='c']
+
+        for i in range(len(self.boxes)):
+            boxi = self.boxes[i]
+            boxi.x = boxi_x
+            boxi.y = self.t[1] + i * (self.font_size+self.line_space)
+            boxi.anchor = boxi_anchor
 
     def write(self):
-        if self.boxes == []:
-            self.createBoxes()
-        for box in self.boxes:
-            box.paint()
+        if self.is_write:
+            self.place()
+            for boxi in self.boxes:
+                boxi.paint()
 
     # def fill(self):
     #     pass

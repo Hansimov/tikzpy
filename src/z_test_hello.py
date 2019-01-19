@@ -10,16 +10,17 @@ initTikzpy('z_test_hello.pdf', width=1280, height=720)
 # circ2 = circle(x=350, y=90, r=1)
 
 xxx = u'π * 123 + 45678 β ∬ Σ \n天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。\n寒来暑往，秋收冬藏。闰余成岁，律吕调阳。\n云腾致雨，露结为霜。金生丽水，玉出昆冈。\n剑号巨阙，珠称夜光。果珍李柰，菜重芥姜。\n\u27bd\n'
-box1 = node(xy=[250, 200], font_size=20, max_width=805, min_width=300, text=xxx, linespace=5, anchor='c', is_stroke=True,is_fill=False)
+box1 = node(xy=[250, 200], font_size=15, max_width=805, min_width=420, text=xxx, line_space=5, anchor='c', is_stroke=True,is_fill=False, align='r')
+box1.font_size = 16
 # print(node1.c)
 # box1 = node(xy=[300, 150], font_size=10, anchor='l', is_stroke=True, font_face='CMU Typewritter Text',  text='π * 123 + 45678 β ∬ Σ ')
 # print(box1.c, box1.l)
 # box1.c = [200,100]
-circle(c=getattr(box1,box1.anchor))
-print(box1.c, box1.l)
-print(box1.wh)
-box1.se = [100,100]
-print(box1.c, box1.l)
+circle(xy=getattr(box1, box1.anchor))
+# print(box1.c, box1.l)
+# print(box1.wh)
+# box1.se = [100,100]
+# print(box1.c, box1.l)
 
 # circle(c=[300,200])
 # node1.calcWH()
