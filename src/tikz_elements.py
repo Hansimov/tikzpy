@@ -729,7 +729,7 @@ class node(box):
             'text_width':    0,
             'text_height':   0,
             'text_rgba':    [0.0, 0.0, 0.5, 1.0],
-            'line_space':    20,
+            '_line_space':   'auto',
         # position
             '_anchor':      'c',
             '_xy':          [0, 0],
@@ -757,6 +757,21 @@ class node(box):
     def setPaintFont(self):
         CONTEXT.set_font_size(self.font_size)
         CONTEXT.select_font_face(self.font_face, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+
+    def propLinespace():
+        @property
+        def prop(self):
+            if self._line_space == 'auto':
+                line_space = self.font_size // 2
+            else:
+                line_space = self._line_space
+            return line_space
+        @prop.setter
+        def prop(self, val):
+            self._line_space = val
+        return prop
+
+    line_space = propLinespace()
 
     def getTextWidth(self, text):
         xb, yb, ww, hh, xa, ya = CONTEXT.text_extents(text)

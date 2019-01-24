@@ -81,6 +81,7 @@ I emphasize several outstanding ones and will have deep researches on them later
 * Adobe Indesign
 
 ### Graphics
+* .dot
 * **Asymptote**
   * Pros:
     * Tasks:
