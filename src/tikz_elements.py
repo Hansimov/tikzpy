@@ -4,9 +4,9 @@ from math import *
 # ELEMENTS, CONTEXT = [], []
 
 def importTikzInit():
-    global ELEMENTS, CONTEXT
+    global PDF_SURFACE, CONTEXT, ELEMENTS
     import tikz_init
-    ELEMENTS, CONTEXT = tikz_init.ELEMENTS, tikz_init.CONTEXT
+    PDF_SURFACE, CONTEXT, ELEMENTS = tikz_init.PDF_SURFACE, tikz_init.CONTEXT, tikz_init.ELEMENTS
 
 # ============================================= #
 class vec(list):
@@ -449,7 +449,7 @@ class box:
     def initArgs(self, kwargs):
         default_args = {
         # others
-            'is_append':    True,
+            'is_append':    False,
         # text
             'is_write':     True,
             '_text':        '',
@@ -724,7 +724,7 @@ class node(box):
             '_font_new':    0,
             # 'twh':          [0,0],
             '_wh':           [0, 0],
-            'max_width':        400,
+            'max_width':     4000,
             'min_width':        0,
             'text_width':    0,
             'text_height':   0,
@@ -733,7 +733,7 @@ class node(box):
         # position
             '_anchor':      'c',
             '_xy':          [0, 0],
-            '_c':            [0, 0],
+            '_c':           [0, 0],
             'ssep':         [5,5,5,5], # stroke sep: nsew/tbrl
             'asep':         [0,0,0,0], # anchor sep: nsew/tbrl
         # fill
@@ -825,6 +825,7 @@ class node(box):
             # x = self.xy[0]
             # y = self.xy[1] + i * (self.line_space + self.font_size)
             self.boxes.append(box(text=line, font_size=self.font_size,font_face=self.font_face))
+            # print("Box "+str(i))
 
         text_width = 0
         for boxi in self.boxes:
@@ -892,6 +893,7 @@ class newPage:
         default_args = {
         # others
             'is_append':    True,
+            'size':         [],
         }
 
         for key, val in default_args.items():
@@ -903,5 +905,12 @@ class newPage:
         if self.is_append:
             ELEMENTS.append(self)
 
+    # If the last page is empty,
+    #   then the last page will not be drawn
     def paint(self):
         CONTEXT.show_page()
+        if not len(self.size) == 0:
+            # CONTEXT.set_size(self.size[0],self.size[1])
+            PDF_SURFACE.set_size(self.size[0],self.size[1])
+        # CONTEXT.copy_page()
+        # print(ELEMENTS)
