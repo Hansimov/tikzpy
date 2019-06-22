@@ -824,7 +824,7 @@ class node(box):
             line = self.lines[i]
             # x = self.xy[0]
             # y = self.xy[1] + i * (self.line_space + self.font_size)
-            self.boxes.append(box(text=line, font_size=self.font_size,font_face=self.font_face))
+            self.boxes.append(box(text=line, font_size=self.font_size,font_face=self.font_face,text_rgba=self.text_rgba))
             # print("Box "+str(i))
 
         text_width = 0
